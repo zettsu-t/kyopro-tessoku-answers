@@ -1,12 +1,8 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39068688
+// https://atcoder.jp/contests/tessoku-book/submissions/39069336
 #include <iostream>
 #include <map>
 #include <vector>
 #include <boost/multi_array.hpp>
-
-namespace {
-    using Num = long long int;
-}
 
 void solve(std::istream& is, std::ostream& os) {
     using Num = long long int;
@@ -24,12 +20,16 @@ void solve(std::istream& is, std::ostream& os) {
         return;
     }
 
+    if (k == n) {
+        os << "0\n";
+        return;
+    }
+
     const MatrixShape shape {{n, k}};
     Matrix board(shape);
     std::fill_n(board.data(), board.num_elements(), inf);
 
     std::multimap<Num, Num> from_links;
-    std::multimap<Num, Num> to_links;
     for(decltype(m) i{0}; i<m; ++i) {
         Num a {0};
         Num b {0};
@@ -38,7 +38,6 @@ void solve(std::istream& is, std::ostream& os) {
             std::swap(a, b);
         }
         from_links.insert(std::make_pair(a, b));
-        to_links.insert(std::make_pair(b, a));
     }
 
     for(decltype(n) page{1}; page<n; ++page) {
