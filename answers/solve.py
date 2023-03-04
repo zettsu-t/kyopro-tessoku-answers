@@ -37,7 +37,7 @@ import natsort
 
 DEFAULT_TEST_CASE_TOPDIR = "testcase"
 HELP_MESSAGE = "make && python3 solve.py problem-id"
-
+TIMEOUT_SEC = 10
 
 def trim_lines(answer):
     """
@@ -136,16 +136,25 @@ class Problem:
                 expected = infile.read()
 
             with open(input_filename, mode="r", encoding="utf-8") as infile:
-                proc = subprocess.run(
-                    [self.exefile_name], stdin=infile, stdout=subprocess.PIPE,
-                    check=False, text=True)
-                if proc.returncode == 0:
-                    result, message = check(
-                        title=title, expected=expected, actual=proc.stdout)
-                    total = total and result
-                    print(message)
+                proc = None
+                try:
+                    proc = subprocess.run(
+                        [self.exefile_name], stdin=infile, stdout=subprocess.PIPE,
+                        timeout=TIMEOUT_SEC, check=False, text=True)
+                except:
+                    pass
+
+                if proc is not None:
+                    if proc.returncode == 0:
+                        result, message = check(
+                            title=title, expected=expected, actual=proc.stdout)
+                        total = total and result
+                        print(message)
+                    else:
+                        print(f"{title}: Runtime error")
+                        total = False
                 else:
-                    print("Runtime error occured")
+                    print(f"{title}: Runtime error or timeout")
                     total = False
 
         if total:
