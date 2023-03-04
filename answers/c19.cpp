@@ -1,23 +1,30 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39372638
+// https://atcoder.jp/contests/tessoku-book/submissions/39390686
 #include <algorithm>
 #include <iostream>
-#include <numeric>
 #include <optional>
+#include <queue>
 #include <tuple>
 #include <vector>
-#include <boost/multi_array.hpp>
 
 void solve(std::istream& is, std::ostream& os) {
     using Num = long long int;
-    constexpr Num inf = std::numeric_limits<Num>::max() / 2;
-    using Matrix = boost::multi_array<Num, 2>;
-    using MatrixShape = boost::array<Matrix::index, 2>;
 
     struct Station {
         Num position {0};
         Num price {0};
+        Num min_fuel {0};
+        Num index {0};
         bool operator<(const Station& rhs) const {
-            return std::tie(position, price) < std::tie(rhs.position, rhs.price);
+            return std::tie(position, price, min_fuel, index) <
+                std::tie(rhs.position, rhs.price, rhs.min_fuel, rhs.index);
+        }
+    };
+
+    struct StationPrice {
+        Num price {0};
+        Num index {0};
+        bool operator<(const StationPrice& rhs) const {
+            return std::tie(price, index) > std::tie(rhs.price, rhs.index);
         }
     };
 
@@ -41,57 +48,82 @@ void solve(std::istream& is, std::ostream& os) {
     prices.at(l) = 0;
 
     std::vector<Station> stations;
-    bool failed{false};
+    stations.reserve(l);
     Num prev{0};
+    Num index{0};
 
     for(decltype(l) i{1}; i<=l; ++i) {
         if (!prices.at(i).has_value()) {
             continue;
         }
 
-        Station station{i, prices.at(i).value()};
+        Station station{i, prices.at(i).value(), 0, index};
         stations.push_back(station);
-        failed |= ((i - prev) > k);
-        prev = i;
-    }
-
-    if (failed) {
-        os << "-1\n";
-        return;
-    }
-
-    Num n_stations = static_cast<Num>(stations.size());
-    const MatrixShape shape {{n_stations, k+1}};
-    Matrix cost(shape);
-    std::fill_n(cost.data(), cost.num_elements(), inf);
-    prev = 0;
-
-    for(decltype(n_stations) i{0}; i<n_stations; ++i) {
-        const auto& station = stations.at(i);
-        const auto current = station.position;
-        const auto price = station.price;
-        const auto distance = current - prev;
-
-        for(decltype(k) fuel{0}; fuel<=k; ++fuel) {
-            if (i == 0) {
-                const auto remaining = k - distance;
-                cost[i][fuel] = (fuel < remaining) ? inf : ((fuel - remaining) * price);
-            } else {
-                Num min_cost{inf};
-                for(decltype(k) prev_fuel{distance}; prev_fuel<=k; ++prev_fuel) {
-                    const auto remaining = prev_fuel - distance;
-                    if (fuel >= remaining) {
-                        const Num local_cost = cost[i-1][prev_fuel] + (fuel - remaining) * price;
-                        min_cost = std::min(min_cost, local_cost);
-                    }
-                }
-                cost[i][fuel] = min_cost;
-            }
+        if ((i - prev) > k) {
+            os << "-1\n";
+            return;
         }
-        prev = current;
+        prev = i;
+        ++index;
     }
 
-    os << cost[n_stations-1][0] << "\n";
+    auto n_stations = static_cast<Num>(stations.size());
+    for(decltype(n_stations) i{0}; (i+1)<n_stations; ++i) {
+        stations.at(i).min_fuel = stations.at(i+1).position - stations.at(i).position;
+    }
+
+    Num cost {0};
+    Num position {0};
+    Num fuel {k};
+    Num left {0};
+    Num right {1};
+    std::priority_queue<StationPrice> candidates;
+
+    while((left + 1) < n_stations) {
+        fuel -= stations.at(left).position - position;
+        std::optional<Num> next;
+
+        while(right < n_stations) {
+            const auto distance = stations.at(right).position - stations.at(left).position;
+            if (distance > k) {
+                break;
+            }
+
+            const auto current_right = right;
+            const auto current_right_price = stations.at(current_right).price;
+            ++right;
+
+            if (stations.at(left).price >= current_right_price) {
+                next = current_right;
+                break;
+            }
+            candidates.push(StationPrice{stations.at(current_right).price, stations.at(current_right).index});
+        }
+
+        Num next_station = right - 1;
+        Num min_fuel = stations.at(left).min_fuel;
+        if (next.has_value()) {
+            next_station = next.value();
+            min_fuel = stations.at(next.value()).position - stations.at(left).position;
+            std::priority_queue<StationPrice> zero;
+            std::swap(candidates, zero);
+        } else {
+            const auto min_price_station = candidates.top();
+            candidates.pop();
+            min_fuel = std::min(k, l - stations.at(left).position);
+            next_station = min_price_station.index;
+        }
+
+        if (min_fuel > fuel) {
+            cost += (min_fuel - fuel) * stations.at(left).price;
+            fuel = min_fuel;
+        }
+
+        position = stations.at(left).position;
+        left = next_station;
+    }
+
+    os << cost << "\n";
     return;
 }
 
