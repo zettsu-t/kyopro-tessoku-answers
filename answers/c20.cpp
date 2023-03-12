@@ -1,10 +1,11 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39665185
+// https://atcoder.jp/contests/tessoku-book/submissions/39668753
 #include <cmath>
 #include <algorithm>
 #include <bitset>
 #include <chrono>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <memory>
 #include <optional>
@@ -178,7 +179,8 @@ struct Area {
     Outline outline;
     std::vector<Block> blocks;
 
-    Area(Num arg_id, Num arg_population, Num arg_n_employees, Num arg_normalized, Numeric arg_importance, Num max_x_pos, Num max_y_pos) :
+    Area(Num arg_id, Num arg_population, Num arg_n_employees, Num arg_normalized,
+         Numeric arg_importance, Num max_x_pos, Num max_y_pos) :
         id(arg_id), population(arg_population), n_employees(arg_n_employees),
         normalized(arg_normalized), importance(arg_importance), outline(max_x_pos, max_y_pos) {
         return;
@@ -574,7 +576,7 @@ struct City {
         auto area_count = initialize_wards(chosen_areas);
         area_count = collect_areas(area_count, chosen_areas, engine);
         area_count = gather_areas(area_count, chosen_areas, engine, dist_area);
-        // area_count = swap_areas(area_count, chosen_areas, engine, dist_area);
+//      area_count = swap_areas(area_count, chosen_areas, engine);
         fill_areas(area_count, chosen_areas);
     }
 
@@ -742,52 +744,71 @@ struct City {
         return area_count;
     }
 
-#if 0
-    Num swap_areas(Num initial_area_count, ChosenAreas& chosen_areas,
-                   RandomEngine& engine, RandomDist& dist_area) {
-        std::vector<Num> area_ids;
-        area_ids.reserve(n_areas);
-        Num n_sorted_size = static_cast<Num>(sorted_area_ids.size());
-        Num n_sub_areas = n_sorted_size / 4;
-
-        for(decltype(n_sub_areas) i{0}; i<n_sub_areas; ++i) {
-            const auto id_large = sorted_area_ids.at(n_sorted_size - i - 1);
-            if (id_large != OUT_OF_CITY) {
-                area_ids.push_back(id_large);
-            }
-
-            const auto id_small = sorted_area_ids.at(i);
-            if (id_small != OUT_OF_CITY) {
-                area_ids.push_back(id_small);
-            }
-        }
-
+    Num swap_areas(Num initial_area_count, ChosenAreas& chosen_areas, RandomEngine& engine) {
         auto area_count = initial_area_count;
-        constexpr double time_limit_msec = 5.0;
+        constexpr double time_limit_msec = 500.0;
         std::clock_t clock_start = std::clock();
         bool running {true};
 
         while(running) {
-            for(const auto& area_id_left : area_ids) {
-                std::clock_t clock_now = std::clock();
-                const auto elapsed_msec = 1000.0 * ((clock_now - clock_start)) / CLOCKS_PER_SEC;
-                if (elapsed_msec > time_limit_msec) {
-                    running = false;
-                    break;
+            std::clock_t clock_now = std::clock();
+            const auto elapsed_msec = 1000.0 * ((clock_now - clock_start)) / CLOCKS_PER_SEC;
+            if (elapsed_msec > time_limit_msec) {
+                running = false;
+                break;
+            }
+
+
+            Num min_ward_id{0};
+            Num max_ward_id{0};
+            Num min_normalized{INF};
+            Num max_normalized{0};
+            for(const auto& ward : wards) {
+                if (ward.get_areas().empty()) {
+                    continue;
                 }
 
+                const auto local_min = std::min(ward.population, ward.n_employees);
+                const auto local_max = std::max(ward.population, ward.n_employees);
+                if (min_normalized > local_min) {
+                    min_ward_id = ward.id;
+                    min_normalized = local_min;
+                }
+
+                if (max_normalized < local_max) {
+                    max_ward_id = ward.id;
+                    max_normalized = local_max;
+                }
+            }
+
+            if ((min_ward_id == 0) || (max_ward_id == 0)) {
+                break;
+            }
+
+            std::vector<Num> area_ids;
+            for(const auto& area : wards.at(min_ward_id).get_areas()) {
+                area_ids.push_back(area.id);
+            }
+            for(const auto& area : wards.at(max_ward_id).get_areas()) {
+                area_ids.push_back(area.id);
+            }
+
+            for(const auto& area_id_left : area_ids) {
                 if (!chosen_areas.at(area_id_left).has_value()) {
                     area_count = attach_area(area_count, area_id_left, chosen_areas);
+                    continue;
                 }
 
-                const auto area_id_right = dist_area(engine);
+                const auto& neighbors = adj_areas.adjacent_area_ids(area_id_left);
+                if (neighbors.empty()) {
+                    continue;
+                }
+
+                Num size = static_cast<Num>(neighbors.size());
+                RandomDist dist(static_cast<decltype(size)>(0), size-1);
+                const auto area_id_right = neighbors.at(dist(engine));
                 if (!chosen_areas.at(area_id_right).has_value()) {
                     area_count = attach_area(area_count, area_id_right, chosen_areas);
-                }
-
-                if (!chosen_areas.at(area_id_left).has_value() ||
-                    !chosen_areas.at(area_id_right).has_value() ||
-                    area_id_left == area_id_right) {
                     continue;
                 }
 
@@ -801,6 +822,7 @@ struct City {
                 auto& ward_right = wards.at(ward_id_right);
                 auto& area_left = areas.at(area_id_left);
                 auto& area_right = areas.at(area_id_right);
+
                 if (!ward_left.adjacent(area_right)) {
                     continue;
                 }
@@ -810,25 +832,21 @@ struct City {
                 }
 
                 bool swapped = false;
-                const Num population_left = ward_left.population - area_left.population + area_right.population;
-                const Num population_right = ward_right.population - area_right.population + area_left.population;
-                const Num n_employees_left = ward_left.n_employees - area_left.n_employees + area_right.n_employees;
-                const Num n_employees_right = ward_right.n_employees - area_right.n_employees + area_left.n_employees;
-
-                if ((average_population_area > std::max(population_left, population_right)) &&
-                    (average_n_employees_area > std::max(n_employees_left, n_employees_right))) {
-                    if (((population_left > ward_left.population) && (population_right > ward_right.population)) &&
-                        ((n_employees_left > ward_left.n_employees) && (n_employees_right > ward_right.n_employees))) {
-                        swapped = true;
-                    }
+                const auto left_max_normalized = std::max(ward_left.population, ward_left.n_employees);
+                const auto left_min_normalized = std::min(ward_left.population, ward_left.n_employees);
+                const auto right_max_normalized = std::max(ward_right.population, ward_right.n_employees);
+                const auto right_min_normalized = std::min(ward_right.population, ward_right.n_employees);
+                const auto two_max = std::max(left_max_normalized, right_max_normalized);
+                const auto two_min = std::min(left_min_normalized, right_min_normalized);
+                const auto left_max_swapped = left_max_normalized - area_left.normalized + area_right.normalized;
+                const auto left_min_swapped = left_min_normalized - area_left.normalized + area_right.normalized;
+                const auto right_max_swapped = right_max_normalized - area_right.normalized + area_left.normalized;
+                const auto right_min_swapped = right_min_normalized - area_right.normalized + area_left.normalized;
+                if ((left_max_swapped < two_max) && (right_max_swapped < two_max)) {
+                    swapped = true;
                 }
-
-                if ((average_population_area < std::min(population_left, population_right)) &&
-                    (average_n_employees_area < std::min(n_employees_left, n_employees_right))) {
-                    if (((population_left < ward_left.population) && (population_right < ward_right.population)) &&
-                        ((n_employees_left < ward_left.n_employees) && (n_employees_right < ward_right.n_employees))) {
-                        swapped = true;
-                    }
+                if ((right_min_swapped > two_min) && (left_min_swapped > two_min)) {
+                    swapped = true;
                 }
 
                 if (swapped) {
@@ -836,6 +854,8 @@ struct City {
                     ward_right.remove(area_right);
                     ward_left.add(area_right);
                     ward_right.add(area_left);
+                    chosen_areas.at(area_left.id) = ward_right.id;
+                    chosen_areas.at(area_right.id) = ward_left.id;
                 }
 
                 if (swapped && (!ward_left.connected() || !ward_right.connected())) {
@@ -843,13 +863,14 @@ struct City {
                     ward_right.remove(area_left);
                     ward_left.add(area_left);
                     ward_right.add(area_right);
+                    chosen_areas.at(area_left.id) = ward_left.id;
+                    chosen_areas.at(area_right.id) = ward_right.id;
                 }
             }
         }
 
         return area_count;
     }
-#endif
 
     void print(std::ostream& os) const {
         std::vector<Num> area_to_ward(n_areas+1, 0);
@@ -868,7 +889,6 @@ struct City {
     }
 
     Num score() const {
-        using Score = double;
         bool connected = true;
         Num max_population {0};
         Num min_population {INF};
@@ -898,10 +918,10 @@ struct City {
             min_n_employees = std::min(min_n_employees, n_employees);
         }
 
-        const Score score_population = static_cast<Score>(min_population) / static_cast<Score>(max_population);
-        const Score score_employees = static_cast<Score>(min_n_employees) / static_cast<Score>(max_n_employees);
-        const Score base = (connected) ? 1000000 : 1000;
-        const Score score = base * std::min(score_population, score_employees);
+        const Numeric score_population = static_cast<Numeric>(min_population) / static_cast<Numeric>(max_population);
+        const Numeric score_employees = static_cast<Numeric>(min_n_employees) / static_cast<Numeric>(max_n_employees);
+        const Numeric base = (connected) ? 1000000 : 1000;
+        const Numeric score = base * std::min(score_population, score_employees);
         return static_cast<Num>(std::floor(score));
     }
 };
