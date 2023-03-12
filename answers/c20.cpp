@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39655435
+// https://atcoder.jp/contests/tessoku-book/submissions/39664380
 #include <cmath>
 #include <algorithm>
 #include <bitset>
@@ -7,6 +7,7 @@
 #include <iostream>
 #include <list>
 #include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <unordered_map>
@@ -19,6 +20,7 @@ namespace {
     constexpr Num OUT_OF_CITY {0};
     constexpr Num CITY_MAX_WIDTH {50};
     constexpr Num CITY_MAX_HEIGHT {50};
+    constexpr Num NORMALIZED_BASE {100000LL};
     constexpr Num INF {1000000000000LL};
 }
 
@@ -161,16 +163,22 @@ struct CityMap {
     }
 };
 
+struct InputArea {
+    Num population {0};
+    Num n_employees {0};
+};
+
 struct Area {
     Num id {OUT_OF_CITY};
     Num population {0};
     Num n_employees {0};
+    Num normalized {NORMALIZED_BASE};
     Outline outline;
     std::vector<Block> blocks;
 
-    Area(Num arg_id, Num arg_population, Num arg_n_employees, Num max_x_pos, Num max_y_pos) :
+    Area(Num arg_id, Num arg_population, Num arg_n_employees, Num arg_normalized, Num max_x_pos, Num max_y_pos) :
         id(arg_id), population(arg_population), n_employees(arg_n_employees),
-        outline(max_x_pos, max_y_pos) {
+        normalized(arg_normalized), outline(max_x_pos, max_y_pos) {
         return;
     }
 
@@ -263,12 +271,12 @@ struct AdjacentAreas {
         for(auto&& neighbors : adj_map) {
             const auto from = neighbors.first;
             adj_population[from] = zero_areas;
-            adj_n_employees[from] = zero_areas;
             for(const auto& to : neighbors.second) {
                 adj_population[from].push_back(areas.at(to));
-                adj_n_employees[from].push_back(areas.at(to));
             }
         }
+
+        adj_n_employees = adj_population;
 
         for(auto&& neighbors : adj_population) {
             std::sort(neighbors.second.begin(), neighbors.second.end(),
@@ -413,28 +421,60 @@ struct Ward {
 };
 
 struct City {
+    using RandomEngine = std::mt19937;
+    using RandomDist = std::uniform_int_distribution<Num>;
+    using ChosenAreas = std::vector<std::optional<Num>>;
     Num width {0};
     Num height {0};
     Num n_areas {0};
     Num n_wards {0};
-    Num average_population {0};
-    Num average_n_employees {0};
+    Num scale_population {NORMALIZED_BASE};
+    Num scale_n_employees {NORMALIZED_BASE};
+    Num average_population_area {0};
+    Num average_n_employees_area {0};
+    Num average_population_ward {0};
+    Num average_n_employees_ward {0};
+    std::vector<InputArea> input_areas;
     std::vector<Area> areas;
-    std::vector<Ward> wards;
+    std::vector<Num> sorted_area_ids;
     AdjacentAreas adj_areas;
+    std::vector<Ward> wards;
 
     City(std::istream& is) : adj_areas(1) {
+        setup(is);
+
+        std::vector<Area> sorted_areas = areas;
+        std::sort(sorted_areas.begin(), sorted_areas.end(),
+                  [&](const auto& lhs, const auto& rhs) {
+                      return std::tie(lhs.normalized, lhs.population, lhs.n_employees, lhs.id) >
+                          std::tie(rhs.normalized, rhs.population, rhs.n_employees, rhs.id);
+                  });
+
+        for(const auto& area : sorted_areas) {
+            const auto& id = area.id;
+            if (id != OUT_OF_CITY) {
+                sorted_area_ids.push_back(id);
+            }
+        }
+
+        connect();
+        gather();
+    }
+
+    void setup(std::istream& is) {
         Num n {0};
         is >> n >> n_areas >> n_wards;
         width = n;
         height = n;
 
-        Area zero_area(0, 0, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
-        std::vector<Area> empty_area_set(n_areas+1, zero_area);
-        std::swap(areas, empty_area_set);
+        const InputArea zero_input_area{0, 0};
+        decltype(input_areas) zero_input_areas(n_areas+1, zero_input_area);
+        std::swap(input_areas, zero_input_areas);
 
         Num total_population {0};
         Num total_n_employees {0};
+        Num min_population {INF};
+        Num min_n_employees {INF};
         for(decltype(n_areas) i{1}; i<=n_areas; ++i) {
             Num population {0};
             Num n_employees {0};
@@ -442,19 +482,55 @@ struct City {
 
             total_population += population;
             total_n_employees += n_employees;
-            Area area(i, population, n_employees, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
-            areas[i] = std::move(area);
+            min_population = std::min(min_population, population);
+            min_n_employees = std::min(min_n_employees, n_employees);
+
+            InputArea input_area {population, n_employees};
+            input_areas[i] = std::move(input_area);
         }
 
-        average_population = total_population / n_areas;
-        average_n_employees = total_n_employees / n_areas;
+        if (min_population > min_n_employees) {
+            scale_population = NORMALIZED_BASE;
+            scale_n_employees = min_population * NORMALIZED_BASE;
+            scale_n_employees /= min_n_employees;
+        } else {
+            scale_n_employees = NORMALIZED_BASE;
+            scale_population = min_n_employees * NORMALIZED_BASE;
+            scale_population /= min_population;
+        }
+
+        average_population_area = total_population * scale_population;
+        average_population_area /= n_areas;
+        average_n_employees_area = total_n_employees * scale_n_employees;
+        average_n_employees_area /= n_areas;
+
+        average_population_ward = total_population * scale_population;
+        average_population_ward /= n_wards;
+        average_n_employees_ward = total_n_employees * scale_n_employees;
+        average_n_employees_ward /= n_wards;
+
+        const Area zero_area(0, 0, 0, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+        decltype(areas) zero_areas(n_areas+1, zero_area);
+        std::swap(areas, zero_areas);
+
+        for(decltype(n_areas) id{1}; id<=n_areas; ++id) {
+            const auto& input_area = input_areas.at(id);
+            Num population {input_area.population};
+            Num n_employees {input_area.n_employees};
+            population *= scale_population;
+            n_employees *= scale_n_employees;
+            const Num normalized = std::min(population, n_employees);
+            Area area(id, population, n_employees, normalized, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+            areas[id] = std::move(area);
+        }
 
         Ward zero_ward(0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
-        std::vector<Ward> new_wards(n_wards+1, zero_ward);
+        decltype(wards) zero_wards(n_wards+1, zero_ward);
+        std::swap(wards, zero_wards);
+
         for(decltype(n_wards) i{1}; i<=n_wards; ++i) {
-            new_wards.at(i).id = i;
+            wards.at(i).id = i;
         }
-        std::swap(wards, new_wards);
 
         for(decltype(n) y{1}; y<=n; ++y) {
             for(decltype(n) x{1}; x<=n; ++x) {
@@ -469,8 +545,6 @@ struct City {
 
         AdjacentAreas new_adj_areas(n_areas);
         adj_areas = new_adj_areas;
-        connect();
-        gather();
     }
 
     void connect() {
@@ -487,87 +561,140 @@ struct City {
 
     void gather() {
         std::random_device seed_gen;
-        std::mt19937 engine(seed_gen());
-        std::uniform_int_distribution<Num> dist_area(1, n_areas);
+        RandomEngine engine(seed_gen());
+        RandomDist dist_area(1, n_areas);
+        ChosenAreas chosen_areas(n_areas + 1);
 
-        std::vector<bool> chosen(n_areas + 1, false);
-        Num ward_id {1};
-        Num ward_count{0};
+        auto area_count = initialize_wards(chosen_areas);
+        area_count = collect_areas(area_count, chosen_areas, engine);
+        area_count = gather_areas(area_count, chosen_areas, engine, dist_area);
+        // area_count = swap_areas(area_count, chosen_areas, engine, dist_area);
+        fill_areas(area_count, chosen_areas);
+    }
+
+    Num initialize_wards(ChosenAreas& chosen_areas) {
         Num area_count{0};
-
-        while(ward_count < n_wards) {
-            const auto area_id = dist_area(engine);
-            if (chosen.at(area_id)) {
-                continue;
-            }
-            chosen.at(area_id) = true;
+        for(decltype(n_wards) ward_id{1}; ward_id<=n_wards; ++ward_id) {
+            const auto& area_id = sorted_area_ids.at(ward_id - 1);
+            chosen_areas.at(area_id) = ward_id;
             wards.at(ward_id).add(areas[area_id]);
-            ++ward_id;
-            ++ward_count;
             ++area_count;
         }
 
-        Num max_loop = 15 * n_areas;
+        return area_count;
+    }
+
+    Num collect_areas(Num initial_area_count, ChosenAreas& chosen_areas, RandomEngine& engine) {
+        auto area_count = initial_area_count;
+        Num max_loop = 10 * n_areas;
+
         for(decltype(max_loop) loop{0}; loop<max_loop; ++loop) {
             for(decltype(n_wards) ward_id{1}; ward_id<=n_wards; ++ward_id) {
                 auto& ward = wards.at(ward_id);
-                auto& area = ward.areas.at(0);
                 Num size = static_cast<Num>(ward.areas.size());
+                RandomDist dist(static_cast<decltype(size)>(1), size);
+                auto& area = ward.areas.at(dist(engine) - 1);
+
+                // ???
                 const auto& neighbors = adj_areas.adjacent_by_population(area.id);
                 if (neighbors.empty()) {
                     continue;
                 }
 
-                const Num required_population = average_population * (size + 1) - ward.population;
-                const Area target_p(0, required_population, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
-                auto it_p = std::lower_bound(neighbors.begin(), neighbors.end(), target_p,
-                                           [&](const auto& lhs, const auto& rhs) {
-                    return std::tie(lhs.population, lhs.n_employees, lhs.id) <
-                        std::tie(rhs.population, rhs.n_employees, rhs.id);
-                });
-
-                for(;it_p != neighbors.end(); ++it_p) {
-                    const auto area = *it_p;
-                    if (chosen.at(area.id)) {
-                        continue;
-                    }
-                    chosen.at(area.id) = true;
-                    wards.at(ward_id).add(area);
-                    ++area_count;
-                    break;
+                const Num required_population = average_population_area * (size + 1) - ward.population;
+                const Num required_employees = average_n_employees_area * (size + 1) - ward.n_employees;
+                const bool more_population = (required_population > average_population_area);
+                const bool more_employees = (required_employees > average_n_employees_area);
+                if ((required_population < 0) || (required_employees < 0) ||
+                    ((average_population_ward * 1) < ward.population) || ((average_n_employees_ward * 1) < ward.n_employees)) {
+                    continue;
                 }
 
-                const Num required_n_employees = average_n_employees * (size + 1) - ward.n_employees;
-                const Area target_n(0, required_n_employees, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
-                auto it_n = std::lower_bound(neighbors.begin(), neighbors.end(), target_n,
-                                           [&](const auto& lhs, const auto& rhs) {
-                    return std::tie(lhs.n_employees, lhs.population, lhs.id) <
-                        std::tie(rhs.n_employees, rhs.population, rhs.id);
+                std::optional<bool> more_less;
+                if (more_population & more_employees) {
+                    more_less = true;
+                } else if (!more_population & !more_employees) {
+                    more_less = false;
+                }
+
+                const Area target_p(0, required_population, 0, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+                auto it_p = std::lower_bound(neighbors.begin(), neighbors.end(), target_p,
+                                             [&](const auto& lhs, const auto& rhs) {
+                    return std::tie(lhs.population, lhs.n_employees, lhs.normalized, lhs.id) <
+                        std::tie(rhs.population, rhs.n_employees, rhs.normalized, rhs.id);
                 });
 
-                for(;it_n != neighbors.end(); ++it_n) {
-                    const auto area = *it_n;
-                    if (chosen.at(area.id)) {
-                        continue;
+                const Area target_n(0, 0, required_employees, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+                auto it_n = std::lower_bound(neighbors.begin(), neighbors.end(), target_n,
+                                           [&](const auto& lhs, const auto& rhs) {
+                    return std::tie(lhs.n_employees, lhs.population, lhs.normalized, lhs.id) <
+                        std::tie(rhs.n_employees, rhs.population, rhs.normalized, rhs.id);
+                });
+
+                std::optional<Num> chosen_area_id;
+                while(!chosen_area_id.has_value() && (it_p != neighbors.end() || it_n != neighbors.end())) {
+                    if (it_p != neighbors.end()) {
+                        const auto area = *it_p;
+                        ++it_p;
+                        if (!chosen_areas.at(area.id).has_value()) {
+                            const bool matched = more_population ^ (average_population_area < areas.at(area.id).population);
+                            if (matched) {
+                                chosen_area_id = area.id;
+                                break;
+                            } else {
+                                chosen_area_id = area.id;
+                            }
+                        }
                     }
-                    chosen.at(area.id) = true;
-                    wards.at(ward_id).add(area);
-                    ++area_count;
-                    break;
+
+                    if (it_n != neighbors.end()) {
+                        const auto area = *it_n;
+                        ++it_n;
+                        if (!chosen_areas.at(area.id).has_value()) {
+                            const bool matched = more_employees ^ (average_n_employees_area < areas.at(area.id).n_employees);
+                            if (matched) {
+                                chosen_area_id = area.id;
+                                break;
+                            } else {
+                                if (!chosen_area_id.has_value()) {
+                                    chosen_area_id = area.id;
+                                } else {
+                                    bool replace {true};
+                                    if (more_less.has_value() && more_less.value()) {
+                                        replace = areas.at(area.id).normalized < areas.at(area.id).normalized;
+                                    } else if (more_less.has_value() && !more_less.value()) {
+                                        replace = areas.at(area.id).normalized > areas.at(area.id).normalized;
+                                    }
+                                    if (replace) {
+                                        chosen_area_id = area.id;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (chosen_area_id.has_value()) {
+                    const auto id = chosen_area_id.value();
+                    if (!chosen_areas.at(id).has_value()) {
+                        chosen_areas.at(id) = ward_id;
+                        wards.at(ward_id).add(areas.at(id));
+                        ++area_count;
+                    }
                 }
             }
         }
 
-        max_loop = 100 * n_areas;
-        for(decltype(max_loop) loop{0}; (loop<max_loop) && (area_count < n_areas); ++loop) {
-            const auto area_id = dist_area(engine);
-            if (chosen.at(area_id)) {
-                continue;
-            }
+        return area_count;
+    }
 
+    Num attach_area(Num initial_area_count, Num area_id, ChosenAreas& chosen_areas) {
+        auto area_count = initial_area_count;
+
+        if (!chosen_areas.at(area_id).has_value()) {
             for(decltype(n_wards) ward_id{1}; ward_id<=n_wards; ++ward_id) {
                 if (wards.at(ward_id).adjacent(areas.at(area_id))) {
-                    chosen.at(area_id) = true;
+                    chosen_areas.at(area_id) = ward_id;
                     wards.at(ward_id).add(areas[area_id]);
                     ++area_count;
                     break;
@@ -575,11 +702,146 @@ struct City {
             }
         }
 
+        return area_count;
+    }
+
+    Num gather_areas(Num initial_area_count, ChosenAreas& chosen_areas,
+                     RandomEngine& engine, RandomDist& dist_area) {
+        auto area_count = initial_area_count;
+        Num max_loop = 100 * n_areas;
+
+        for(decltype(max_loop) loop{0}; (loop<max_loop) && (area_count < n_areas); ++loop) {
+            const auto area_id = dist_area(engine);
+            if (chosen_areas.at(area_id).has_value()) {
+                continue;
+            }
+
+            area_count = attach_area(area_count, area_id, chosen_areas);
+        }
+
+        return area_count;
+    }
+
+    Num fill_areas(Num initial_area_count, ChosenAreas& chosen_areas) {
+        auto area_count = initial_area_count;
+
+        const auto ward_id {n_wards};
         for(decltype(n_areas) area_id{1}; area_id<=n_areas; ++area_id) {
-            if (!chosen.at(area_id)) {
-                wards.at(n_wards).add(areas[area_id]);
+            if (!chosen_areas.at(area_id).has_value()) {
+                wards.at(ward_id).add(areas.at(area_id));
+                chosen_areas.at(area_id) = ward_id;
+                ++area_count;
             }
         }
+
+        return area_count;
+    }
+
+    Num swap_areas(Num initial_area_count, ChosenAreas& chosen_areas,
+                   RandomEngine& engine, RandomDist& dist_area) {
+        std::vector<Num> area_ids;
+        area_ids.reserve(n_areas);
+        Num n_sorted_size = static_cast<Num>(sorted_area_ids.size());
+        Num n_sub_areas = n_sorted_size / 4;
+
+        for(decltype(n_sub_areas) i{0}; i<n_sub_areas; ++i) {
+            const auto id_large = sorted_area_ids.at(n_sorted_size - i - 1);
+            if (id_large != OUT_OF_CITY) {
+                area_ids.push_back(id_large);
+            }
+
+            const auto id_small = sorted_area_ids.at(i);
+            if (id_small != OUT_OF_CITY) {
+                area_ids.push_back(id_small);
+            }
+        }
+
+        auto area_count = initial_area_count;
+        constexpr double time_limit_msec = 5.0;
+        std::clock_t clock_start = std::clock();
+        bool running {true};
+
+        while(running) {
+            for(const auto& area_id_left : area_ids) {
+                std::clock_t clock_now = std::clock();
+                const auto elapsed_msec = 1000.0 * ((clock_now - clock_start)) / CLOCKS_PER_SEC;
+                if (elapsed_msec > time_limit_msec) {
+                    running = false;
+                    break;
+                }
+
+                if (!chosen_areas.at(area_id_left).has_value()) {
+                    area_count = attach_area(area_count, area_id_left, chosen_areas);
+                }
+
+                const auto area_id_right = dist_area(engine);
+                if (!chosen_areas.at(area_id_right).has_value()) {
+                    area_count = attach_area(area_count, area_id_right, chosen_areas);
+                }
+
+                if (!chosen_areas.at(area_id_left).has_value() ||
+                    !chosen_areas.at(area_id_right).has_value() ||
+                    area_id_left == area_id_right) {
+                    continue;
+                }
+
+                const auto ward_id_left = chosen_areas.at(area_id_left).value();
+                const auto ward_id_right = chosen_areas.at(area_id_right).value();
+                if (ward_id_left == ward_id_right) {
+                    continue;
+                }
+
+                auto& ward_left = wards.at(ward_id_left);
+                auto& ward_right = wards.at(ward_id_right);
+                auto& area_left = areas.at(area_id_left);
+                auto& area_right = areas.at(area_id_right);
+                if (!ward_left.adjacent(area_right)) {
+                    continue;
+                }
+
+                if (!ward_right.adjacent(area_left)) {
+                    continue;
+                }
+
+                bool swapped = false;
+                const Num population_left = ward_left.population - area_left.population + area_right.population;
+                const Num population_right = ward_right.population - area_right.population + area_left.population;
+                const Num n_employees_left = ward_left.n_employees - area_left.n_employees + area_right.n_employees;
+                const Num n_employees_right = ward_right.n_employees - area_right.n_employees + area_left.n_employees;
+
+                if ((average_population_area > std::max(population_left, population_right)) &&
+                    (average_n_employees_area > std::max(n_employees_left, n_employees_right))) {
+                    if (((population_left > ward_left.population) && (population_right > ward_right.population)) &&
+                        ((n_employees_left > ward_left.n_employees) && (n_employees_right > ward_right.n_employees))) {
+                        swapped = true;
+                    }
+                }
+
+                if ((average_population_area < std::min(population_left, population_right)) &&
+                    (average_n_employees_area < std::min(n_employees_left, n_employees_right))) {
+                    if (((population_left < ward_left.population) && (population_right < ward_right.population)) &&
+                        ((n_employees_left < ward_left.n_employees) && (n_employees_right < ward_right.n_employees))) {
+                        swapped = true;
+                    }
+                }
+
+                if (swapped) {
+                    ward_left.remove(area_left);
+                    ward_right.remove(area_right);
+                    ward_left.add(area_right);
+                    ward_right.add(area_left);
+                }
+
+                if (swapped && (!ward_left.connected() || !ward_right.connected())) {
+                    ward_left.remove(area_right);
+                    ward_right.remove(area_left);
+                    ward_left.add(area_left);
+                    ward_right.add(area_right);
+                }
+            }
+        }
+
+        return area_count;
     }
 
     void print(std::ostream& os) const {
@@ -600,19 +862,33 @@ struct City {
 
     Num score() const {
         using Score = double;
+        bool connected = true;
         Num max_population {0};
         Num min_population {INF};
         Num max_n_employees {0};
         Num min_n_employees {INF};
 
-        bool connected = true;
         for(decltype(n_wards) i{1}; i<=n_wards; ++i) {
             const auto& ward = wards.at(i);
-            max_population = std::max(max_population, ward.population);
-            min_population = std::min(min_population, ward.population);
-            max_n_employees = std::max(max_n_employees, ward.n_employees);
-            min_n_employees = std::min(min_n_employees, ward.n_employees);
             connected &= ward.connected();
+
+            Num population {0};
+            Num n_employees {0};
+            for(const auto& ward_area : ward.areas)  {
+                const auto& id = ward_area.id;
+                if (id == OUT_OF_CITY) {
+                    continue;
+                }
+
+                const auto& input_area = input_areas.at(id);
+                population += input_area.population;
+                n_employees += input_area.n_employees;
+            }
+
+            max_population = std::max(max_population, population);
+            min_population = std::min(min_population, population);
+            max_n_employees = std::max(max_n_employees, n_employees);
+            min_n_employees = std::min(min_n_employees, n_employees);
         }
 
         const Score score_population = static_cast<Score>(min_population) / static_cast<Score>(max_population);
