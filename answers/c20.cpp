@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39654530
+// https://atcoder.jp/contests/tessoku-book/submissions/39655435
 #include <cmath>
 #include <algorithm>
 #include <bitset>
@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 #include <boost/multi_array.hpp>
 
 namespace {
@@ -191,13 +192,17 @@ struct Area {
 };
 
 struct AdjacentAreas {
-    using Areas = std::vector<Num>;
+    using AreaIds = std::vector<Num>;
+    using Areas = std::vector<Area>;
     using Map2D = boost::multi_array<bool, 2>;
     using Map2DShape = boost::array<Map2D::index, 2>;
 
     Map2DShape shape;
     std::unique_ptr<Map2D> adj_matrix;
-    std::unordered_map<Num, Areas> adj_map;
+    std::unordered_map<Num, AreaIds> adj_map;
+    std::unordered_map<Num, Areas> adj_population;
+    std::unordered_map<Num, Areas> adj_n_employees;
+    const AreaIds zero_area_ids;
     const Areas zero_areas;
 
     AdjacentAreas(const AdjacentAreas& source) {
@@ -244,30 +249,72 @@ struct AdjacentAreas {
         (*adj_matrix)[right_id][left_id] = true;
 
         if (adj_map.find(left_id) == adj_map.end()) {
-            adj_map[left_id] = zero_areas;
+            adj_map[left_id] = zero_area_ids;
         }
         adj_map[left_id].push_back(right_id);
 
         if (adj_map.find(right_id) == adj_map.end()) {
-            adj_map[right_id] = zero_areas;
+            adj_map[right_id] = zero_area_ids;
         }
         adj_map[right_id].push_back(left_id);
+    }
+
+    void sort(const std::vector<Area>& areas) {
+        for(auto&& neighbors : adj_map) {
+            const auto from = neighbors.first;
+            adj_population[from] = zero_areas;
+            adj_n_employees[from] = zero_areas;
+            for(const auto& to : neighbors.second) {
+                adj_population[from].push_back(areas.at(to));
+                adj_n_employees[from].push_back(areas.at(to));
+            }
+        }
+
+        for(auto&& neighbors : adj_population) {
+            std::sort(neighbors.second.begin(), neighbors.second.end(),
+                      [&](const auto& lhs, const auto& rhs) {
+                          return std::tie(lhs.population, lhs.n_employees, lhs.id) <
+                              std::tie(rhs.population, rhs.n_employees, rhs.id);
+                      });
+        }
+
+        for(auto&& neighbors : adj_n_employees) {
+            std::sort(neighbors.second.begin(), neighbors.second.end(),
+                      [&](const auto& lhs, const auto& rhs) {
+                          return std::tie(lhs.n_employees, lhs.population, lhs.id) <
+                              std::tie(rhs.n_employees, rhs.population, rhs.id);
+                      });
+        }
     }
 
     bool adjacent(const Area& left, const Area& right) const {
         return (*adj_matrix)[left.id][right.id];
     }
 
-    const Areas& adjacent_areas(const Num area_id) const {
+    const AreaIds& adjacent_area_ids(const Num area_id) const {
         if (adj_map.find(area_id) == adj_map.end()) {
-            return zero_areas;
+            return zero_area_ids;
         }
         return adj_map.at(area_id);
+    }
+
+    const Areas& adjacent_by_population(const Num area_id) const {
+        if (adj_population.find(area_id) == adj_population.end()) {
+            return zero_areas;
+        }
+        return adj_population.at(area_id);
+    }
+
+    const Areas& adjacent_by_n_employees(const Num area_id) const {
+        if (adj_n_employees.find(area_id) == adj_n_employees.end()) {
+            return zero_areas;
+        }
+        return adj_n_employees.at(area_id);
     }
 };
 
 struct Ward {
-    using Areas = std::list<Area>;
+    using Areas = std::vector<Area>;
     Num id {OUT_OF_CITY};
     Num population {0};
     Num n_employees {0};
@@ -370,6 +417,8 @@ struct City {
     Num height {0};
     Num n_areas {0};
     Num n_wards {0};
+    Num average_population {0};
+    Num average_n_employees {0};
     std::vector<Area> areas;
     std::vector<Ward> wards;
     AdjacentAreas adj_areas;
@@ -384,13 +433,21 @@ struct City {
         std::vector<Area> empty_area_set(n_areas+1, zero_area);
         std::swap(areas, empty_area_set);
 
+        Num total_population {0};
+        Num total_n_employees {0};
         for(decltype(n_areas) i{1}; i<=n_areas; ++i) {
-            Num a {0};
-            Num b {0};
-            is >> a >> b;
-            Area area(i, a, b, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+            Num population {0};
+            Num n_employees {0};
+            is >> population >> n_employees;
+
+            total_population += population;
+            total_n_employees += n_employees;
+            Area area(i, population, n_employees, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
             areas[i] = std::move(area);
         }
+
+        average_population = total_population / n_areas;
+        average_n_employees = total_n_employees / n_areas;
 
         Ward zero_ward(0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
         std::vector<Ward> new_wards(n_wards+1, zero_ward);
@@ -424,9 +481,9 @@ struct City {
                 }
             }
         }
+
+        adj_areas.sort(areas);
     }
-
-
 
     void gather() {
         std::random_device seed_gen;
@@ -435,9 +492,10 @@ struct City {
 
         std::vector<bool> chosen(n_areas + 1, false);
         Num ward_id {1};
-        Num count{0};
+        Num ward_count{0};
+        Num area_count{0};
 
-        while(count < n_wards) {
+        while(ward_count < n_wards) {
             const auto area_id = dist_area(engine);
             if (chosen.at(area_id)) {
                 continue;
@@ -445,11 +503,63 @@ struct City {
             chosen.at(area_id) = true;
             wards.at(ward_id).add(areas[area_id]);
             ++ward_id;
-            ++count;
+            ++ward_count;
+            ++area_count;
         }
 
-        Num max_loop = 1000 * n_areas;
+        Num max_loop = 15 * n_areas;
         for(decltype(max_loop) loop{0}; loop<max_loop; ++loop) {
+            for(decltype(n_wards) ward_id{1}; ward_id<=n_wards; ++ward_id) {
+                auto& ward = wards.at(ward_id);
+                auto& area = ward.areas.at(0);
+                Num size = static_cast<Num>(ward.areas.size());
+                const auto& neighbors = adj_areas.adjacent_by_population(area.id);
+                if (neighbors.empty()) {
+                    continue;
+                }
+
+                const Num required_population = average_population * (size + 1) - ward.population;
+                const Area target_p(0, required_population, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+                auto it_p = std::lower_bound(neighbors.begin(), neighbors.end(), target_p,
+                                           [&](const auto& lhs, const auto& rhs) {
+                    return std::tie(lhs.population, lhs.n_employees, lhs.id) <
+                        std::tie(rhs.population, rhs.n_employees, rhs.id);
+                });
+
+                for(;it_p != neighbors.end(); ++it_p) {
+                    const auto area = *it_p;
+                    if (chosen.at(area.id)) {
+                        continue;
+                    }
+                    chosen.at(area.id) = true;
+                    wards.at(ward_id).add(area);
+                    ++area_count;
+                    break;
+                }
+
+                const Num required_n_employees = average_n_employees * (size + 1) - ward.n_employees;
+                const Area target_n(0, required_n_employees, 0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+                auto it_n = std::lower_bound(neighbors.begin(), neighbors.end(), target_n,
+                                           [&](const auto& lhs, const auto& rhs) {
+                    return std::tie(lhs.n_employees, lhs.population, lhs.id) <
+                        std::tie(rhs.n_employees, rhs.population, rhs.id);
+                });
+
+                for(;it_n != neighbors.end(); ++it_n) {
+                    const auto area = *it_n;
+                    if (chosen.at(area.id)) {
+                        continue;
+                    }
+                    chosen.at(area.id) = true;
+                    wards.at(ward_id).add(area);
+                    ++area_count;
+                    break;
+                }
+            }
+        }
+
+        max_loop = 100 * n_areas;
+        for(decltype(max_loop) loop{0}; (loop<max_loop) && (area_count < n_areas); ++loop) {
             const auto area_id = dist_area(engine);
             if (chosen.at(area_id)) {
                 continue;
@@ -459,7 +569,7 @@ struct City {
                 if (wards.at(ward_id).adjacent(areas.at(area_id))) {
                     chosen.at(area_id) = true;
                     wards.at(ward_id).add(areas[area_id]);
-                    ++count;
+                    ++area_count;
                     break;
                 }
             }
@@ -471,8 +581,6 @@ struct City {
             }
         }
     }
-
-
 
     void print(std::ostream& os) const {
         std::vector<Num> area_to_ward(n_areas+1, 0);
