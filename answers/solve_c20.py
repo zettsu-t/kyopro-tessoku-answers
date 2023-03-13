@@ -8,6 +8,9 @@
 実行方法(C20の実行ファイルはmakeするなりしてあらかじめ用意してください)
 $ python3 solve_c20.py
 
+標準出力の内容は、スコアだけ(正確には数字以外で始まる行の数字だけ)出力します。
+標準エラー出力の内容はそのまま出力します。デバッグにご利用下さい。
+
 グローバルな定数は以下の用途に使います。適宜ご変更ください。
 - DEFAULT_TEST_CASE_TOPDIR は、公開されているテストケースの.zipを展開したディレクトリ名です。
 - COMMAND_LINE は、問題を解く実行ファイルを起動するためのコマンドと引数です。
@@ -24,7 +27,7 @@ import natsort
 
 DEFAULT_TEST_CASE = "testcase/c20/sample-in"
 COMMAND_LINE = ["./c20", "score"]
-TIMEOUT_SEC = 1
+TIMEOUT_SEC = 5
 
 
 def solve_one(command_line, input_filename):
@@ -36,6 +39,8 @@ def solve_one(command_line, input_filename):
         proc = subprocess.run(command_line, stdin=infile,
                               stdout=subprocess.PIPE, timeout=TIMEOUT_SEC, check=False, text=True)
         answer = proc.stdout
+        if proc.stderr is not None:
+            print(proc.stderr)
         replaced = re.sub(r"^\d+", "", answer, flags=re.MULTILINE)
         replaced = re.sub(r"\r", "", replaced)
         replaced = re.sub(r"\n+", "\n", replaced)
