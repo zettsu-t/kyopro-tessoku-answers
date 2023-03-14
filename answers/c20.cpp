@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39668753
+// https://atcoder.jp/contests/tessoku-book/submissions/39736350
 #include <cmath>
 #include <algorithm>
 #include <bitset>
@@ -11,6 +11,7 @@
 #include <optional>
 #include <random>
 #include <string>
+#include <sstream>
 #include <unordered_map>
 #include <vector>
 #include <utility>
@@ -100,14 +101,23 @@ struct Outline {
         max_y = std::max(max_y, rhs.max_y);
     }
 
+    void remove(const Outline& rhs) {
+        add(rhs);
+    }
+
     bool adjacent(const Outline& rhs) const {
-        for(decltype(min_y) y{min_y}; y<=max_y; ++y) {
+        auto top = std::max(min_y, rhs.min_y);
+        auto bottom = std::min(max_y, rhs.max_y);
+        auto left = std::max(min_x, rhs.min_x);
+        auto right = std::min(max_x, rhs.max_x);
+
+        for(decltype(top) y{top}; y<=bottom; ++y) {
             if ((v_lines.at(y) & rhs.v_lines.at(y)).count() > 0) {
                 return true;
             }
         }
 
-        for(decltype(min_x) x{min_x}; x<=max_x; ++x) {
+        for(decltype(left) x{left}; x<=right; ++x) {
             if ((h_lines.at(x) & rhs.h_lines.at(x)).count() > 0) {
                 return true;
             }
@@ -162,6 +172,58 @@ struct CityMap {
 
     Element get(Num x, Num y) const {
         return (*area_map)[y][x];
+    }
+
+    static void visit(Map2D* visited, Num x, Num y, Num map_width, Num map_height) {
+        if ((*visited)[y][x] == 0) {
+            return;
+        }
+
+        (*visited)[y][x] = 0;
+
+        if ((x+1) < map_width) {
+            visit(visited, x+1, y, map_width, map_height);
+        }
+
+        if ((y+1) < map_height) {
+            visit(visited, x, y+1, map_width, map_height);
+        }
+
+        if (x > 0) {
+            visit(visited, x-1, y, map_width, map_height);
+        }
+
+        if (y > 0) {
+            visit(visited, x, y-1, map_width, map_height);
+        }
+
+        return;
+    }
+
+    bool connected() const {
+        std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(shape);
+        *new_area_map = *area_map;
+        auto map_width = shape[1];
+        auto map_height = shape[0];
+
+        auto visited = new_area_map.get();
+        Num count{0};
+        for(decltype(map_height) y{0}; y<map_height; ++y) {
+            for(decltype(map_width) x{0}; x<map_width; ++x) {
+                if ((*visited)[y][x] == 0) {
+                    continue;
+                }
+
+                if (count > 0) {
+                    return false;
+                }
+
+                visit(visited, x, y, map_width, map_height);
+                ++count;
+            }
+        }
+
+        return true;
     }
 };
 
@@ -331,21 +393,23 @@ struct Ward {
     Num population {0};
     Num n_employees {0};
     Areas areas;
+    Outline empty_outline;
     Outline outline;
+    CityMap empty_area_map;
     CityMap area_map;
 
     Ward(Num ward_number, Num max_x_pos, Num max_y_pos) :
-        id(ward_number), outline(max_x_pos, max_y_pos),
-        area_map(max_x_pos, max_y_pos) {
+        id(ward_number), empty_outline(max_x_pos, max_y_pos), outline(max_x_pos, max_y_pos),
+        empty_area_map(max_x_pos, max_y_pos), area_map(max_x_pos, max_y_pos) {
         return;
     }
 
     void add(const Area& area) {
         population += area.population;
         n_employees += area.n_employees;
-        areas.push_back(area);
         outline.add(area.outline);
         area.set_area_map(area_map, 1);
+        areas.push_back(area);
         return;
     }
 
@@ -358,7 +422,7 @@ struct Ward {
 
         population -= area.population;
         n_employees -= area.n_employees;
-        outline.add(it->outline);
+        outline.remove(it->outline);
         it->set_area_map(area_map, 0);
         areas.erase(it);
         return;
@@ -372,51 +436,8 @@ struct Ward {
         return outline.adjacent(rhs.outline);
     }
 
-    void visit(CityMap& visited, Num x, Num y, Num width, Num height) const {
-        visited.set(x, y, 0);
-
-        if ((x > 0) && (visited.get(x-1, y) > 0)) {
-            visit(visited, x-1, y, width, height);
-        }
-
-        if (((x+1) < width) && (visited.get(x+1, y) > 0)) {
-            visit(visited, x+1, y, width, height);
-        }
-
-        if ((y > 0) && (visited.get(x, y-1) > 0)) {
-            visit(visited, x, y-1, width, height);
-        }
-
-        if (((y+1) < height) && (visited.get(x, y+1) > 0)) {
-            visit(visited, x, y+1, width, height);
-        }
-
-        return;
-    }
-
     bool connected() const {
-        CityMap new_area_map(area_map);
-        auto width = new_area_map.width();
-        auto height = new_area_map.height();
-
-        for(decltype(height) y{0}; y<height; ++y) {
-            for(decltype(width) x{0}; x<width; ++x) {
-                if (new_area_map.get(x, y) != 0) {
-                    visit(new_area_map, x, y, width, height);
-                    break;
-                }
-            }
-        }
-
-        for(decltype(height) y{0}; y<height; ++y) {
-            for(decltype(width) x{0}; x<width; ++x) {
-                if (new_area_map.get(x, y) != 0) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return area_map.connected();
     }
 
     const Areas& get_areas() const {
@@ -576,7 +597,7 @@ struct City {
         auto area_count = initialize_wards(chosen_areas);
         area_count = collect_areas(area_count, chosen_areas, engine);
         area_count = gather_areas(area_count, chosen_areas, engine, dist_area);
-//      area_count = swap_areas(area_count, chosen_areas, engine);
+        area_count = swap_areas(area_count, chosen_areas, engine);
         fill_areas(area_count, chosen_areas);
     }
 
@@ -746,8 +767,10 @@ struct City {
 
     Num swap_areas(Num initial_area_count, ChosenAreas& chosen_areas, RandomEngine& engine) {
         auto area_count = initial_area_count;
-        constexpr double time_limit_msec = 500.0;
+        constexpr double time_limit_msec = 800.0;
         std::clock_t clock_start = std::clock();
+
+        RandomDist dist_full(1, n_areas);
         bool running {true};
 
         while(running) {
@@ -758,114 +781,132 @@ struct City {
                 break;
             }
 
-
+            const bool choose_random = dist_full(engine) < ((n_areas) / 4);
             Num min_ward_id{0};
-            Num max_ward_id{0};
-            Num min_normalized{INF};
-            Num max_normalized{0};
-            for(const auto& ward : wards) {
-                if (ward.get_areas().empty()) {
+            Num min_ward_normalized{INF};
+
+            if (choose_random) {
+                const auto area_id = dist_full(engine);
+                if (!chosen_areas.at(area_id).has_value()) {
+                    area_count = attach_area(area_count, area_id, chosen_areas);
                     continue;
                 }
 
-                const auto local_min = std::min(ward.population, ward.n_employees);
-                const auto local_max = std::max(ward.population, ward.n_employees);
-                if (min_normalized > local_min) {
-                    min_ward_id = ward.id;
-                    min_normalized = local_min;
+                const auto& ward = wards.at(chosen_areas.at(area_id).value());
+                if ((ward.population > average_population_ward) ||
+                    (ward.n_employees > average_n_employees_ward)) {
+                    continue;
                 }
 
-                if (max_normalized < local_max) {
-                    max_ward_id = ward.id;
-                    max_normalized = local_max;
+                min_ward_id = ward.id;
+            } else {
+                for(const auto& ward : wards) {
+                    if (ward.id == 0) {
+                        continue;
+                    }
+
+                    const auto local_min = std::min(ward.population, ward.n_employees);
+                    if (min_ward_normalized > local_min) {
+                        min_ward_id = ward.id;
+                        min_ward_normalized = local_min;
+                    }
                 }
             }
 
-            if ((min_ward_id == 0) || (max_ward_id == 0)) {
+            if (min_ward_id == 0) {
                 break;
             }
 
-            std::vector<Num> area_ids;
-            for(const auto& area : wards.at(min_ward_id).get_areas()) {
-                area_ids.push_back(area.id);
+            auto& ward_left = wards.at(min_ward_id);
+            const auto& left_areas = ward_left.get_areas();
+            auto left_size = left_areas.size();
+            if (left_size == 0) {
+                continue;
             }
-            for(const auto& area : wards.at(max_ward_id).get_areas()) {
-                area_ids.push_back(area.id);
+
+            Num min_area_id{0};
+            Num min_area_normalized{INF};
+            for(const auto& area : left_areas) {
+                const auto local_min = std::min(area.population, area.n_employees);
+                if (min_area_normalized > local_min) {
+                    min_area_id = area.id;
+                    min_area_normalized = local_min;
+                }
             }
 
-            for(const auto& area_id_left : area_ids) {
-                if (!chosen_areas.at(area_id_left).has_value()) {
-                    area_count = attach_area(area_count, area_id_left, chosen_areas);
+            if (min_area_id == 0) {
+                break;
+            }
+            const Area& area_left = areas.at(min_area_id);
+
+            const auto& right_area_ids = adj_areas.adjacent_area_ids(area_left.id);
+            Num right_area_id{0};
+            Num right_area_max{0};
+            for(const auto& area_id : right_area_ids) {
+                if (!chosen_areas.at(area_id).has_value()) {
+                    area_count = attach_area(area_count, area_id, chosen_areas);
+                    break;
+                }
+
+                auto& ward_id = chosen_areas.at(area_id).value();
+                if (ward_left.id == ward_id) {
                     continue;
                 }
 
-                const auto& neighbors = adj_areas.adjacent_area_ids(area_id_left);
-                if (neighbors.empty()) {
-                    continue;
+                const auto& local_area = areas.at(area_id);
+                const auto local_max = std::max(local_area.population, local_area.n_employees);
+                if (right_area_max < local_max) {
+                    right_area_id = area_id;
+                    right_area_max = local_max;
                 }
+            }
 
-                Num size = static_cast<Num>(neighbors.size());
-                RandomDist dist(static_cast<decltype(size)>(0), size-1);
-                const auto area_id_right = neighbors.at(dist(engine));
-                if (!chosen_areas.at(area_id_right).has_value()) {
-                    area_count = attach_area(area_count, area_id_right, chosen_areas);
-                    continue;
-                }
+            if (choose_random || (right_area_id == 0)) {
+                right_area_id = dist_full(engine);
+            }
 
-                const auto ward_id_left = chosen_areas.at(area_id_left).value();
-                const auto ward_id_right = chosen_areas.at(area_id_right).value();
-                if (ward_id_left == ward_id_right) {
-                    continue;
-                }
+            const Area& area_right = areas.at(right_area_id);
+            if (!chosen_areas.at(area_right.id).has_value()) {
+                area_count = attach_area(area_count, area_right.id, chosen_areas);
+                continue;
+            }
+            auto& ward_right = wards.at(chosen_areas.at(area_right.id).value());
+            if ((ward_left.id == ward_right.id) || (ward_left.id == 0) || (ward_right.id == 0)) {
+                continue;
+            }
 
-                auto& ward_left = wards.at(ward_id_left);
-                auto& ward_right = wards.at(ward_id_right);
-                auto& area_left = areas.at(area_id_left);
-                auto& area_right = areas.at(area_id_right);
+            if ((ward_right.population < average_population_ward) ||
+                (ward_right.n_employees < average_n_employees_ward)) {
+                continue;
+            }
 
-                if (!ward_left.adjacent(area_right)) {
-                    continue;
-                }
+            const auto left_population = ward_left.population - area_left.population + area_right.population;
+            const auto left_n_employees = ward_left.n_employees - area_left.n_employees + area_right.n_employees;
+            const auto right_population = ward_right.population - area_right.population + area_left.population;
+            const auto right_n_employees = ward_right.n_employees - area_right.n_employees + area_left.n_employees;
 
-                if (!ward_right.adjacent(area_left)) {
-                    continue;
-                }
+            const bool swapped =
+                (std::min(left_population, left_n_employees) >
+                 std::min(ward_left.population, ward_left.n_employees)) &&
+                (std::max(right_population, right_n_employees) <
+                 std::max(ward_right.population, ward_right.n_employees));
 
-                bool swapped = false;
-                const auto left_max_normalized = std::max(ward_left.population, ward_left.n_employees);
-                const auto left_min_normalized = std::min(ward_left.population, ward_left.n_employees);
-                const auto right_max_normalized = std::max(ward_right.population, ward_right.n_employees);
-                const auto right_min_normalized = std::min(ward_right.population, ward_right.n_employees);
-                const auto two_max = std::max(left_max_normalized, right_max_normalized);
-                const auto two_min = std::min(left_min_normalized, right_min_normalized);
-                const auto left_max_swapped = left_max_normalized - area_left.normalized + area_right.normalized;
-                const auto left_min_swapped = left_min_normalized - area_left.normalized + area_right.normalized;
-                const auto right_max_swapped = right_max_normalized - area_right.normalized + area_left.normalized;
-                const auto right_min_swapped = right_min_normalized - area_right.normalized + area_left.normalized;
-                if ((left_max_swapped < two_max) && (right_max_swapped < two_max)) {
-                    swapped = true;
-                }
-                if ((right_min_swapped > two_min) && (left_min_swapped > two_min)) {
-                    swapped = true;
-                }
+            if (!swapped) {
+                continue;
+            }
 
-                if (swapped) {
-                    ward_left.remove(area_left);
-                    ward_right.remove(area_right);
-                    ward_left.add(area_right);
-                    ward_right.add(area_left);
-                    chosen_areas.at(area_left.id) = ward_right.id;
-                    chosen_areas.at(area_right.id) = ward_left.id;
-                }
+            ward_left.remove(area_left);
+            ward_right.remove(area_right);
+            ward_left.add(area_right);
+            ward_right.add(area_left);
 
-                if (swapped && (!ward_left.connected() || !ward_right.connected())) {
-                    ward_left.remove(area_right);
-                    ward_right.remove(area_left);
-                    ward_left.add(area_left);
-                    ward_right.add(area_right);
-                    chosen_areas.at(area_left.id) = ward_left.id;
-                    chosen_areas.at(area_right.id) = ward_right.id;
-                }
+            if (ward_left.connected() && ward_right.connected()) {
+                std::swap(chosen_areas[area_left.id], chosen_areas[area_right.id]);
+            } else {
+                ward_left.remove(area_right);
+                ward_right.remove(area_left);
+                ward_left.add(area_left);
+                ward_right.add(area_right);
             }
         }
 
@@ -889,37 +930,55 @@ struct City {
     }
 
     Num score() const {
+        std::ostringstream os;
+        print(os);
+        std::istringstream is(os.str());
+
+        std::unordered_multimap<Num, Num> actual_wards;
+        for(Num area{1}; area<=n_areas; ++area) {
+            Num ward{0};
+            is >> ward;
+
+            if ((ward <= 0) || (ward > n_wards)) {
+                return 0;
+            }
+            actual_wards.insert(std::make_pair(ward, area));
+        }
+
         bool connected = true;
         Num max_population {0};
         Num min_population {INF};
         Num max_n_employees {0};
         Num min_n_employees {INF};
 
-        for(decltype(n_wards) i{1}; i<=n_wards; ++i) {
-            const auto& ward = wards.at(i);
-            connected &= ward.connected();
-
-            Num population {0};
-            Num n_employees {0};
-            for(const auto& ward_area : ward.areas)  {
-                const auto& id = ward_area.id;
-                if (id == OUT_OF_CITY) {
-                    continue;
-                }
-
-                const auto& input_area = input_areas.at(id);
-                population += input_area.population;
-                n_employees += input_area.n_employees;
+        for(Num ward_id{1}; ward_id<=n_wards; ++ward_id) {
+            if (actual_wards.find(ward_id) == actual_wards.end()) {
+                return 0;
             }
 
+            Ward ward(ward_id, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
+            Num population {0};
+            Num n_employees {0};
+            auto its = actual_wards.equal_range(ward_id);
+            for(auto it = its.first; it != its.second; ++it) {
+                const auto area_id = it->second;
+                const auto& input_area = input_areas.at(area_id);
+                population += input_area.population;
+                n_employees += input_area.n_employees;
+                ward.add(areas.at(area_id));
+            }
+
+            connected &= ward.connected();
             max_population = std::max(max_population, population);
             min_population = std::min(min_population, population);
             max_n_employees = std::max(max_n_employees, n_employees);
             min_n_employees = std::min(min_n_employees, n_employees);
         }
 
-        const Numeric score_population = static_cast<Numeric>(min_population) / static_cast<Numeric>(max_population);
-        const Numeric score_employees = static_cast<Numeric>(min_n_employees) / static_cast<Numeric>(max_n_employees);
+        const Numeric score_population = static_cast<Numeric>(min_population) /
+            static_cast<Numeric>(max_population);
+        const Numeric score_employees = static_cast<Numeric>(min_n_employees) /
+            static_cast<Numeric>(max_n_employees);
         const Numeric base = (connected) ? 1000000 : 1000;
         const Numeric score = base * std::min(score_population, score_employees);
         return static_cast<Num>(std::floor(score));
