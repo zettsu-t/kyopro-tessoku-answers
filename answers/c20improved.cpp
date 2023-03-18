@@ -1,12 +1,10 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39826425
-#include <cmath>
+// https://atcoder.jp/contests/tessoku-book/submissions/39827189
 #include <algorithm>
 #include <bitset>
 #include <chrono>
 #include <exception>
 #include <iostream>
 #include <iterator>
-#include <list>
 #include <memory>
 #include <optional>
 #include <random>
@@ -38,6 +36,9 @@ struct UnionFindTree {
     using Node = std::variant<None, Root, Id>;
     using Tree = std::vector<Node>;
     using TreeSize = std::vector<size_t>;
+
+    Tree tree_;
+    TreeSize tree_size_;
 
     UnionFindTree(Num size) {
         Tree tree(size, None{});
@@ -151,14 +152,11 @@ struct UnionFindTree {
             compress(y_root_id);
         }
     }
-
-    Tree tree_;
-    TreeSize tree_size_;
 };
 
 struct Block {
-    Num x {0};
-    Num y {0};
+    Num x_ {0};
+    Num y_ {0};
 };
 
 struct Outline {
@@ -167,31 +165,31 @@ struct Outline {
     static_assert(size >= static_cast<size_t>(CITY_MAX_HEIGHT + 2));
     using Line = std::bitset<size>;
 
-    std::vector<Line> v_lines;
-    std::vector<Line> h_lines;
-    Num min_x {static_cast<decltype(min_x)>(size)-1};
-    Num max_x {0};
-    Num min_y {static_cast<decltype(min_y)>(size)-1};
-    Num max_y {0};
+    std::vector<Line> v_lines_;
+    std::vector<Line> h_lines_;
+    Num min_x_ {static_cast<decltype(min_x_)>(size)-1};
+    Num max_x_ {0};
+    Num min_y_ {static_cast<decltype(min_y_)>(size)-1};
+    Num max_y_ {0};
 
     Outline(Num max_x_pos, Num max_y_pos) {
-        decltype(v_lines) v_zeros(size);
-        std::swap(v_lines, v_zeros);
+        decltype(v_lines_) v_zeros(size);
+        std::swap(v_lines_, v_zeros);
 
-        decltype(h_lines) h_zeros(size);
-        std::swap(h_lines, h_zeros);
+        decltype(h_lines_) h_zeros(size);
+        std::swap(h_lines_, h_zeros);
 
-        if ((v_lines.at(0).size() < static_cast<size_t>(max_x_pos + 2)) ||
-            (v_lines.size() < static_cast<size_t>(max_y_pos + 1)) ||
-            (h_lines.at(0).size() < static_cast<size_t>(max_y_pos + 2)) ||
-            (h_lines.size() < static_cast<size_t>(max_x_pos + 1))) {
+        if ((v_lines_.at(0).size() < static_cast<size_t>(max_x_pos + 2)) ||
+            (v_lines_.size() < static_cast<size_t>(max_y_pos + 1)) ||
+            (h_lines_.at(0).size() < static_cast<size_t>(max_y_pos + 2)) ||
+            (h_lines_.size() < static_cast<size_t>(max_x_pos + 1))) {
             std::terminate();
         }
     }
 
     void add(const Block& block) {
-        const auto x = block.x;
-        const auto y = block.y;
+        const auto x = block.x_;
+        const auto y = block.y_;
         const auto left = x;
         const auto right = x+1;
         const auto top = y;
@@ -205,29 +203,29 @@ struct Outline {
         horizontal.set(top);
         horizontal.set(bottom);
 
-        v_lines.at(top) ^= vertical;
-        h_lines.at(left) ^= horizontal;
-        min_x = std::min(min_x, left);
-        max_x = std::max(max_x, right);
-        min_y = std::min(min_y, top);
-        max_y = std::max(max_y, bottom);
+        v_lines_.at(top) ^= vertical;
+        h_lines_.at(left) ^= horizontal;
+        min_x_ = std::min(min_x_, left);
+        max_x_ = std::max(max_x_, right);
+        min_y_ = std::min(min_y_, top);
+        max_y_ = std::max(max_y_, bottom);
     }
 
     void add(const Outline& rhs) {
-        auto y_size = v_lines.size();
+        auto y_size = v_lines_.size();
         for(decltype(y_size) y{0}; y < y_size; ++y) {
-            v_lines.at(y) ^= rhs.v_lines.at(y);
+            v_lines_.at(y) ^= rhs.v_lines_.at(y);
         }
 
-        auto x_size = h_lines.size();
+        auto x_size = h_lines_.size();
         for(decltype(x_size) x{0}; x < x_size; ++x) {
-            h_lines.at(x) ^= rhs.h_lines.at(x);
+            h_lines_.at(x) ^= rhs.h_lines_.at(x);
         }
 
-        min_x = std::min(min_x, rhs.min_x);
-        max_x = std::max(max_x, rhs.max_x);
-        min_y = std::min(min_y, rhs.min_y);
-        max_y = std::max(max_y, rhs.max_y);
+        min_x_ = std::min(min_x_, rhs.min_x_);
+        max_x_ = std::max(max_x_, rhs.max_x_);
+        min_y_ = std::min(min_y_, rhs.min_y_);
+        max_y_ = std::max(max_y_, rhs.max_y_);
     }
 
     void remove(const Outline& rhs) {
@@ -235,19 +233,19 @@ struct Outline {
     }
 
     bool adjacent(const Outline& rhs) const {
-        auto top = std::max(min_y, rhs.min_y);
-        auto bottom = std::min(max_y, rhs.max_y);
-        auto left = std::max(min_x, rhs.min_x);
-        auto right = std::min(max_x, rhs.max_x);
+        auto top = std::max(min_y_, rhs.min_y_);
+        auto bottom = std::min(max_y_, rhs.max_y_);
+        auto left = std::max(min_x_, rhs.min_x_);
+        auto right = std::min(max_x_, rhs.max_x_);
 
         for(decltype(top) y{top}; y<=bottom; ++y) {
-            if ((v_lines.at(y) & rhs.v_lines.at(y)).count() > 0) {
+            if ((v_lines_.at(y) & rhs.v_lines_.at(y)).count() > 0) {
                 return true;
             }
         }
 
         for(decltype(left) x{left}; x<=right; ++x) {
-            if ((h_lines.at(x) & rhs.h_lines.at(x)).count() > 0) {
+            if ((h_lines_.at(x) & rhs.h_lines_.at(x)).count() > 0) {
                 return true;
             }
         }
@@ -260,47 +258,47 @@ struct CityMap {
     using Element = Num;
     using Map2D = boost::multi_array<Element, 2>;
     using Map2DShape = boost::array<Map2D::index, 2>;
-    Map2DShape shape;
-    std::unique_ptr<Map2D> area_map;
+    Map2DShape shape_;
+    std::unique_ptr<Map2D> area_map_;
 
     CityMap(const CityMap& source) {
-        shape = source.shape;
-        std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(source.shape);
-        *new_area_map = *(source.area_map);
-        std::swap(area_map, new_area_map);
+        shape_ = source.shape_;
+        std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(source.shape_);
+        *new_area_map = *(source.area_map_);
+        std::swap(area_map_, new_area_map);
     }
 
     CityMap& operator=(const CityMap& other) {
         if (this != &other) {
-            shape = other.shape;
-            std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(other.shape);
-            *new_area_map = *(other.area_map);
-            std::swap(area_map, new_area_map);
+            shape_ = other.shape_;
+            std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(other.shape_);
+            *new_area_map = *(other.area_map_);
+            std::swap(area_map_, new_area_map);
         }
 
         return *this;
     }
 
-    CityMap(Num max_x_pos, Num max_y_pos) : shape({max_y_pos + 1, max_x_pos + 1}) {
-        auto new_area_map = std::make_unique<Map2D>(shape);
+    CityMap(Num max_x_pos, Num max_y_pos) : shape_({max_y_pos + 1, max_x_pos + 1}) {
+        auto new_area_map = std::make_unique<Map2D>(shape_);
         std::fill_n(new_area_map->data(), new_area_map->num_elements(), 0);
-        std::swap(area_map, new_area_map);
+        std::swap(area_map_, new_area_map);
     }
 
     size_t width() const {
-        return shape[1];
+        return shape_[1];
     }
 
     size_t height() const {
-        return shape[0];
+        return shape_[0];
     }
 
     void set(Num x, Num y, Element value) {
-        (*area_map)[y][x] = value;
+        (*area_map_)[y][x] = value;
     }
 
     Element get(Num x, Num y) const {
-        return (*area_map)[y][x];
+        return (*area_map_)[y][x];
     }
 
     static void visit(Map2D* visited, Num x, Num y, Num map_width, Num map_height) {
@@ -330,10 +328,10 @@ struct CityMap {
     }
 
     bool connected() const {
-        std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(shape);
-        *new_area_map = *area_map;
-        auto map_width = shape[1];
-        auto map_height = shape[0];
+        std::unique_ptr<Map2D> new_area_map = std::make_unique<Map2D>(shape_);
+        *new_area_map = *area_map_;
+        auto map_width = shape_[1];
+        auto map_height = shape_[0];
 
         auto visited = new_area_map.get();
         Num count{0};
@@ -357,242 +355,214 @@ struct CityMap {
 };
 
 struct InputArea {
-    Num population {0};
-    Num n_employees {0};
+    Num population_ {0};
+    Num n_employees_ {0};
 };
 
 struct Area {
-    Num id {OUT_OF_CITY};
-    Num population {0};
-    Num n_employees {0};
-    Num normalized {NORMALIZED_BASE};
-    Outline outline;
-    std::vector<Block> blocks;
+    Num id_ {OUT_OF_CITY};
+    Num population_ {0};
+    Num n_employees_ {0};
+    Num normalized_ {NORMALIZED_BASE};
+    Outline outline_;
+    std::vector<Block> blocks_;
 
-    Area(Num arg_id, Num arg_population, Num arg_n_employees, Num arg_normalized,
+    Area(Num id, Num population, Num n_employees, Num normalized,
          Num max_x_pos, Num max_y_pos) :
-        id(arg_id), population(arg_population), n_employees(arg_n_employees),
-        normalized(arg_normalized), outline(max_x_pos, max_y_pos) {
+        id_(id), population_(population), n_employees_(n_employees),
+        normalized_(normalized), outline_(max_x_pos, max_y_pos) {
         return;
     }
 
     void add(const Block& block) {
-        outline.add(block);
-        blocks.push_back(block);
+        outline_.add(block);
+        blocks_.push_back(block);
         return;
     }
 
     bool adjacent(const Area& rhs) const {
-        return outline.adjacent(rhs.outline);
+        return outline_.adjacent(rhs.outline_);
     }
 
     void set_area_map(CityMap& city_map, Num value) const {
-        for(const auto& block : blocks) {
-            city_map.set(block.x, block.y, value);
+        for(const auto& block : blocks_) {
+            city_map.set(block.x_, block.y_, value);
         }
-    }
-};
-
-struct AdjacentAreas {
-    using AreaIds = std::vector<Num>;
-    using Areas = std::vector<Area>;
-    using Map2D = boost::multi_array<bool, 2>;
-    using Map2DShape = boost::array<Map2D::index, 2>;
-
-    Map2DShape shape;
-    std::unique_ptr<Map2D> adj_matrix;
-    std::unordered_map<Num, AreaIds> adj_map;
-    std::unordered_map<Num, Areas> adj_normalized;
-    std::unordered_map<Num, Areas> adj_population;
-    std::unordered_map<Num, Areas> adj_n_employees;
-    const AreaIds zero_area_ids;
-    const Areas zero_areas;
-
-    AdjacentAreas(const AdjacentAreas& source) {
-        shape = source.shape;
-        std::unique_ptr<Map2D> new_adj_matrix = std::make_unique<Map2D>(source.shape);
-        *new_adj_matrix = *(source.adj_matrix);
-        std::swap(adj_matrix, new_adj_matrix);
-    }
-
-    AdjacentAreas& operator=(const AdjacentAreas& other) {
-        if (this != &other) {
-            shape = other.shape;
-            std::unique_ptr<Map2D> new_adj_matrix = std::make_unique<Map2D>(other.shape);
-            *new_adj_matrix = *(other.adj_matrix);
-            std::swap(adj_matrix, new_adj_matrix);
-        }
-
-        return *this;
-    }
-
-    AdjacentAreas(Num size) : shape({size + 1, size + 1}) {
-        auto new_adj_matrix = std::make_unique<Map2D>(shape);
-        std::fill_n(new_adj_matrix->data(), new_adj_matrix->num_elements(), 0);
-        std::swap(adj_matrix, new_adj_matrix);
-    }
-
-    size_t width() const {
-        return shape[1];
-    }
-
-    size_t height() const {
-        return shape[0];
-    }
-
-    void set(const Area& left, const Area& right) {
-        const auto left_id = left.id;
-        const auto right_id = right.id;
-
-        if (!left.adjacent(right)) {
-            return;
-        }
-
-        (*adj_matrix)[left_id][right_id] = true;
-        (*adj_matrix)[right_id][left_id] = true;
-
-        if (adj_map.find(left_id) == adj_map.end()) {
-            adj_map[left_id] = zero_area_ids;
-        }
-        adj_map[left_id].push_back(right_id);
-
-        if (adj_map.find(right_id) == adj_map.end()) {
-            adj_map[right_id] = zero_area_ids;
-        }
-        adj_map[right_id].push_back(left_id);
-    }
-
-    void sort(const std::vector<Area>& areas) {
-        for(auto&& neighbors : adj_map) {
-            const auto from = neighbors.first;
-            adj_normalized[from] = zero_areas;
-            for(const auto& to : neighbors.second) {
-                adj_normalized[from].push_back(areas.at(to));
-            }
-        }
-
-        for(auto&& neighbors : adj_normalized) {
-            std::sort(neighbors.second.begin(), neighbors.second.end(),
-                      [&](const auto& lhs, const auto& rhs) {
-                          return std::tie(lhs.normalized, lhs.population, lhs.n_employees, lhs.id) <
-                              std::tie(rhs.normalized, rhs.population, rhs.n_employees, rhs.id);
-                      });
-        }
-
-        adj_population = adj_normalized;
-        for(auto&& neighbors : adj_population) {
-            std::sort(neighbors.second.begin(), neighbors.second.end(),
-                      [&](const auto& lhs, const auto& rhs) {
-                          return std::tie(lhs.population, lhs.n_employees, lhs.normalized, lhs.id) <
-                              std::tie(rhs.population, rhs.n_employees, rhs.normalized, rhs.id);
-                      });
-        }
-
-        adj_n_employees = adj_normalized;
-        for(auto&& neighbors : adj_n_employees) {
-            std::sort(neighbors.second.begin(), neighbors.second.end(),
-                      [&](const auto& lhs, const auto& rhs) {
-                          return std::tie(lhs.n_employees, lhs.population, lhs.normalized, lhs.id) <
-                              std::tie(rhs.n_employees, rhs.population, rhs.normalized, rhs.id);
-                      });
-        }
-    }
-
-    bool adjacent(const Area& left, const Area& right) const {
-        return (*adj_matrix)[left.id][right.id];
-    }
-
-    const AreaIds& adjacent_area_ids(const Num area_id) const {
-        if (adj_map.find(area_id) == adj_map.end()) {
-            return zero_area_ids;
-        }
-        return adj_map.at(area_id);
-    }
-
-    const Areas& adjacent_by_population(const Num area_id) const {
-        if (adj_population.find(area_id) == adj_population.end()) {
-            return zero_areas;
-        }
-        return adj_population.at(area_id);
-    }
-
-    const Areas& adjacent_by_n_employees(const Num area_id) const {
-        if (adj_n_employees.find(area_id) == adj_n_employees.end()) {
-            return zero_areas;
-        }
-        return adj_n_employees.at(area_id);
-    }
-
-    const Areas& adjacent_by_normalized(const Num area_id) const {
-        if (adj_normalized.find(area_id) == adj_normalized.end()) {
-            return zero_areas;
-        }
-        return adj_normalized.at(area_id);
     }
 };
 
 struct Ward {
     using Areas = std::vector<Area>;
-    Num id {OUT_OF_CITY};
-    Num population {0};
-    Num n_employees {0};
-    Areas areas;
-    Outline empty_outline;
-    Outline outline;
-    CityMap empty_area_map;
-    CityMap area_map;
+    Num id_ {OUT_OF_CITY};
+    Num population_ {0};
+    Num n_employees_ {0};
+    Areas areas_;
+    Outline outline_;
+    CityMap area_map_;
 
     Ward(Num ward_number, Num max_x_pos, Num max_y_pos) :
-        id(ward_number), empty_outline(max_x_pos, max_y_pos), outline(max_x_pos, max_y_pos),
-        empty_area_map(max_x_pos, max_y_pos), area_map(max_x_pos, max_y_pos) {
+        id_(ward_number), outline_(max_x_pos, max_y_pos), area_map_(max_x_pos, max_y_pos) {
         return;
     }
 
     void add(const Area& area) {
-        population += area.population;
-        n_employees += area.n_employees;
-        outline.add(area.outline);
-        area.set_area_map(area_map, 1);
-        areas.push_back(area);
+        population_ += area.population_;
+        n_employees_ += area.n_employees_;
+        outline_.add(area.outline_);
+        area.set_area_map(area_map_, 1);
+        areas_.push_back(area);
         return;
     }
 
     void merge(const Ward& rhs) {
-        for(const auto& area : rhs.areas) {
+        for(const auto& area : rhs.areas_) {
             add(area);
         }
         return;
     }
 
     void remove(const Area& area) {
-        auto it = std::find_if(areas.begin(), areas.end(),
-                               [&](const auto& x) { return x.id == area.id; });
-        if (it == areas.end()) {
+        auto it = std::find_if(areas_.begin(), areas_.end(),
+                               [&](const auto& x) { return x.id_ == area.id_; });
+        if (it == areas_.end()) {
             return;
         }
 
-        population -= area.population;
-        n_employees -= area.n_employees;
-        outline.remove(it->outline);
-        it->set_area_map(area_map, 0);
-        areas.erase(it);
+        population_ -= area.population_;
+        n_employees_ -= area.n_employees_;
+        outline_.remove(it->outline_);
+        it->set_area_map(area_map_, 0);
+        areas_.erase(it);
         return;
     }
 
     bool adjacent(const Area& area) const {
-        return outline.adjacent(area.outline);
+        return outline_.adjacent(area.outline_);
     }
 
     bool adjacent(const Ward& rhs) const {
-        return outline.adjacent(rhs.outline);
+        return outline_.adjacent(rhs.outline_);
     }
 
     bool connected() const {
-        return area_map.connected();
+        return area_map_.connected();
     }
 
     const Areas& get_areas() const {
-        return areas;
+        return areas_;
+    }
+};
+
+struct AdjacentWards {
+    using WardIds = std::vector<Num>;
+    using Map2D = boost::multi_array<bool, 2>;
+    using Map2DShape = boost::array<Map2D::index, 2>;
+
+    Num size_ {0};
+    Map2DShape shape_{{1, 1}};
+    std::unique_ptr<Map2D> adj_matrix_;
+    std::unique_ptr<UnionFindTree> adj_tree_;
+
+    AdjacentWards(const AdjacentWards& source) {
+        size_ = source.size_;
+        shape_ = source.shape_;
+
+        std::unique_ptr<Map2D> new_adj_matrix = std::make_unique<Map2D>(source.shape_);
+        *new_adj_matrix = *(source.adj_matrix_);
+        std::swap(adj_matrix_, new_adj_matrix);
+
+        std::unique_ptr<UnionFindTree> new_adj_tree = std::make_unique<UnionFindTree>(size_);
+        *new_adj_tree = *(source.adj_tree_);
+        std::swap(adj_tree_, new_adj_tree);
+    }
+
+    AdjacentWards& operator=(const AdjacentWards& other) {
+        if (this != &other) {
+            size_ = other.size_;
+            shape_ = other.shape_;
+
+            std::unique_ptr<Map2D> new_adj_matrix = std::make_unique<Map2D>(other.shape_);
+            *new_adj_matrix = *(other.adj_matrix_);
+            std::swap(adj_matrix_, new_adj_matrix);
+
+            std::unique_ptr<UnionFindTree> new_adj_tree = std::make_unique<UnionFindTree>(size_);
+            *new_adj_tree = *(other.adj_tree_);
+            std::swap(adj_tree_, new_adj_tree);
+        }
+
+        return *this;
+    }
+
+    AdjacentWards(Num size) : size_(size), shape_({size + 1, size + 1}) {
+        auto new_adj_matrix = std::make_unique<Map2D>(shape_);
+        std::fill_n(new_adj_matrix->data(), new_adj_matrix->num_elements(), 0);
+        std::swap(adj_matrix_, new_adj_matrix);
+
+        std::unique_ptr<UnionFindTree> new_adj_tree = std::make_unique<UnionFindTree>(size_);
+        std::swap(adj_tree_, new_adj_tree);
+    }
+
+    void set_cross_areas(const std::vector<Ward>& wards) {
+        for(const auto& left : wards) {
+            const auto left_id = left.id_;
+            for(const auto& right : wards) {
+                const auto right_id = right.id_;
+                if (left_id != right_id) {
+                    const bool adj = left.adjacent(right);
+                    (*adj_matrix_)[left_id][right_id] = adj;
+                    (*adj_matrix_)[right_id][left_id] = adj;
+                }
+            }
+        }
+    }
+
+    void connect(const std::vector<Ward>& wards, Num left_ward_id, Num right_ward_id) {
+        for(const auto& other : wards) {
+            const auto other_wards = other.id_;
+            if (other_wards == OUT_OF_CITY) {
+                continue;
+            }
+
+            const bool connected =
+                (*adj_matrix_)[left_ward_id][other_wards] |
+                (*adj_matrix_)[other_wards][left_ward_id] |
+                (*adj_matrix_)[right_ward_id][other_wards] |
+                (*adj_matrix_)[other_wards][right_ward_id];
+
+            (*adj_matrix_)[left_ward_id][other_wards] |= connected;
+            (*adj_matrix_)[other_wards][left_ward_id] |= connected;
+            (*adj_matrix_)[right_ward_id][other_wards] |= connected;
+            (*adj_matrix_)[other_wards][right_ward_id] |= connected;
+
+            adj_tree_->connect(left_ward_id, right_ward_id);
+        }
+    }
+
+    size_t width() const {
+        return shape_[1];
+    }
+
+    size_t height() const {
+        return shape_[0];
+    }
+
+    bool adjacent(Num left_ward_id, Num right_ward_id) const {
+        return (*adj_matrix_)[left_ward_id][right_ward_id];
+    }
+
+    bool common(Num left_ward_id, Num right_ward_id) const {
+        return adj_tree_->common(left_ward_id, right_ward_id);
+    }
+
+    WardIds adjacent_area_ids(Num ward_id) const {
+        WardIds ids;
+        for(decltype(size_) other{1}; other <= size_; ++other) {
+            if (adjacent(ward_id, other)) {
+                ids.push_back(other);
+            }
+        }
+
+        return ids;
     }
 };
 
@@ -607,11 +577,13 @@ struct City {
     std::vector<InputArea> input_areas_;
     std::vector<Area> areas_;
     std::vector<Ward> wards_;
-    AdjacentAreas adj_areas_;
+    std::vector<Num> area_to_ward_;
+    AdjacentWards adjacent_areas_;
 
-    City(std::istream& is) : adj_areas_(1) {
+    City(std::istream& is) : adjacent_areas_(1) {
         setup(is);
-        connect();
+        gather_areas();
+        swap_areas();
     }
 
     void setup(std::istream& is) {
@@ -660,22 +632,14 @@ struct City {
 
         for(decltype(n_areas_) id{1}; id<=n_areas_; ++id) {
             const auto& input_area = input_areas_.at(id);
-            Num population {input_area.population};
-            Num n_employees {input_area.n_employees};
+            Num population {input_area.population_};
+            Num n_employees {input_area.n_employees_};
             population *= scale_population;
             n_employees *= scale_n_employees;
 
             const Num normalized = std::min(population, n_employees);
             Area area(id, population, n_employees, normalized, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
             areas_.at(id) = std::move(area);
-        }
-
-        Ward zero_ward(0, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
-        decltype(wards_) zero_wards(n_wards_, zero_ward);
-        std::swap(wards_, zero_wards);
-
-        for(decltype(n_wards_) i{0}; i<n_wards_; ++i) {
-            wards_.at(i).id = i+1;
         }
 
         for(decltype(n) y{1}; y<=n; ++y) {
@@ -688,20 +652,13 @@ struct City {
                 }
             }
         }
-
-        AdjacentAreas new_adj_areas(n_areas_);
-        adj_areas_ = new_adj_areas;
     }
 
-    void connect() {
-        using Map2D = boost::multi_array<bool, 2>;
-        using Map2DShape = boost::array<Map2D::index, 2>;
-        const Map2DShape adj_wards_shape({n_areas_ + 1, n_areas_ + 1});
-        Map2D adj_wards(adj_wards_shape);
-        std::fill_n(adj_wards.data(), adj_wards.num_elements(), 0);
-
+    void gather_areas() {
+        AdjacentWards adjacent_wards(n_areas_ + 1);
         std::vector<Ward> sub_wards;
         sub_wards.reserve(n_areas_);
+
         for(decltype(n_areas_) area_id{1}; area_id <= n_areas_; ++area_id) {
             const auto& area = areas_.at(area_id);
             Ward ward(area_id, CITY_MAX_WIDTH, CITY_MAX_HEIGHT);
@@ -709,51 +666,39 @@ struct City {
             sub_wards.push_back(ward);
         }
 
+        adjacent_wards.set_cross_areas(sub_wards);
+        adjacent_areas_ = adjacent_wards;
         Num n_sub_wards = static_cast<decltype(n_wards_)>(sub_wards.size());
-        for(decltype(n_sub_wards) left_index{0}; left_index < n_sub_wards; ++left_index) {
-            for(decltype(n_sub_wards) right_index{0}; right_index < n_sub_wards; ++right_index) {
-                const auto left_id = sub_wards.at(left_index).id;
-                const auto right_id = sub_wards.at(right_index).id;
-                if (left_id == right_id) {
-                    continue;
-                }
 
-                const bool adj = areas_.at(left_id).adjacent(areas_.at(right_id));
-                adj_wards[left_id][right_id] = adj;
-                adj_wards[right_id][left_id] = adj;
-            }
-        }
-
-        UnionFindTree ward_tree(n_areas_ * 2);
         while(n_sub_wards > n_wards_) {
             for(decltype(n_wards_) source_index {0};
                 (source_index < n_areas_) && (n_sub_wards > n_wards_);
                 ++source_index) {
                 auto& source = sub_wards.at(source_index);
-                if (source.id == OUT_OF_CITY) {
+                if (source.id_ == OUT_OF_CITY) {
                     continue;
                 }
 
-                Num min_normalized {1000000000000000LL};
+                Num min_normalized {INF};
                 std::optional<Num> ward_index;
-                for(decltype(source_index) other_index {0};
-                    other_index < n_areas_;
-                    ++other_index) {
-
-                    auto& other = sub_wards.at(other_index);
-                    if ((other.id == OUT_OF_CITY) || (source.id == other.id)) {
+                for(const auto& other_ward_id : adjacent_wards.adjacent_area_ids(source.id_)) {
+                    const auto other_index = other_ward_id - 1;
+                    const auto& other = sub_wards.at(other_index);
+                    if ((other.id_ == OUT_OF_CITY) ||
+                        (source.id_ == other_ward_id) ||
+                        (other.id_ != other_ward_id)) {
                         continue;
                     }
 
-                    if (ward_tree.common(source.id, other.id)) {
+                    if (adjacent_wards.common(source.id_, other.id_)) {
                         continue;
                     }
 
-                    if (!adj_wards[source.id][other.id] & !adj_wards[other.id][source.id]) {
+                    if (!adjacent_wards.adjacent(source.id_, other.id_)) {
                         continue;
                     }
 
-                    const Num normalized = std::min(other.population, other.n_employees);
+                    const Num normalized = std::min(other.population_, other.n_employees_);
                     if (min_normalized > normalized) {
                         ward_index = other_index;
                         min_normalized = normalized;
@@ -765,38 +710,31 @@ struct City {
                 }
 
                 auto& target = sub_wards.at(ward_index.value());
-                ward_tree.connect(source.id, target.id);
+                adjacent_wards.connect(sub_wards, source.id_, target.id_);
                 source.merge(target);
-                for(decltype(n_areas_) i{0}; i<n_areas_; ++i) {
-                    const auto id = sub_wards.at(i).id;
-                    if (id == OUT_OF_CITY) {
-                        continue;
-                    }
-                    const bool connected = adj_wards[source.id][id] | adj_wards[id][source.id] |
-                        adj_wards[target.id][id] | adj_wards[id][target.id];
-                    adj_wards[source.id][id] |= connected;
-                    adj_wards[target.id][id] |= connected;
-                    adj_wards[id][source.id] |= connected;
-                    adj_wards[id][target.id] |= connected;
-                }
-
-                target.id = OUT_OF_CITY;
+                target.id_ = OUT_OF_CITY;
                 --n_sub_wards;
             }
         }
 
+        std::vector<Num> area_to_ward(n_areas_ + 1, OUT_OF_CITY);
         std::vector<Ward> wards;
         Num ward_serial{1};
         for(decltype(n_areas_) i{0}; i<n_areas_; ++i) {
             auto ward = sub_wards.at(i);
-            if (ward.id == OUT_OF_CITY) {
+            if (ward.id_ == OUT_OF_CITY) {
                 continue;
             }
-            ward.id = ward_serial;
+
+            ward.id_ = ward_serial;
+            for(const auto& area : ward.get_areas()) {
+                area_to_ward.at(area.id_) = ward_serial;
+            }
             wards.push_back(ward);
             ++ward_serial;
         }
         std::swap(wards_, wards);
+        std::swap(area_to_ward_, area_to_ward);
     }
 
     void print(std::ostream& os) const {
@@ -804,7 +742,7 @@ struct City {
 
         for(const auto& ward : wards_) {
             for(const auto& area : ward.get_areas()) {
-                area_to_ward.at(area.id) = ward.id;
+                area_to_ward.at(area.id_) = ward.id_;
             }
         }
 
@@ -815,22 +753,7 @@ struct City {
         return;
     }
 
-    Num score() const {
-        std::ostringstream os;
-        print(os);
-        std::istringstream is(os.str());
-
-        std::unordered_multimap<Num, Num> actual_wards;
-        for(Num area_id{1}; area_id<=n_areas_; ++area_id) {
-            Num ward_id{0};
-            is >> ward_id;
-
-            if ((ward_id <= 0) || (ward_id > n_wards_)) {
-                return 0;
-            }
-            actual_wards.insert(std::make_pair(ward_id, area_id));
-        }
-
+    Num score_detail(const std::unordered_multimap<Num, Num>& actual_wards) const {
         bool connected = true;
         Num max_population {0};
         Num min_population {INF};
@@ -849,8 +772,8 @@ struct City {
             for(auto it = its.first; it != its.second; ++it) {
                 const auto area_id = it->second;
                 const auto& input_area = input_areas_.at(area_id);
-                population += input_area.population;
-                n_employees += input_area.n_employees;
+                population += input_area.population_;
+                n_employees += input_area.n_employees_;
                 ward.add(areas_.at(area_id));
             }
 
@@ -868,6 +791,92 @@ struct City {
         const Numeric base = (connected) ? 1000000 : 1000;
         const Numeric score = base * std::min(score_population, score_employees);
         return static_cast<Num>(std::floor(score));
+    }
+
+    Num score() const {
+        std::ostringstream os;
+        print(os);
+        std::istringstream is(os.str());
+
+        std::unordered_multimap<Num, Num> actual_wards;
+        for(Num area_id{1}; area_id<=n_areas_; ++area_id) {
+            Num ward_id{0};
+            is >> ward_id;
+
+            if ((ward_id <= 0) || (ward_id > n_wards_)) {
+                return 0;
+            }
+            actual_wards.insert(std::make_pair(ward_id, area_id));
+        }
+
+        return score_detail(actual_wards);
+    }
+
+    Num score_inner() const {
+        std::unordered_multimap<Num, Num> actual_wards;
+
+        for(decltype(n_areas_) area_id{1}; area_id <= n_areas_; ++area_id) {
+            const auto ward_id = area_to_ward_.at(area_id);
+            if ((ward_id <= 0) || (ward_id > n_wards_)) {
+                return 0;
+            }
+            actual_wards.insert(std::make_pair(ward_id, area_id));
+        }
+
+        return score_detail(actual_wards);
+    }
+
+    void swap_areas() {
+        std::random_device seed_gen;
+        RandomEngine engine(seed_gen());
+        RandomDist dist_area(1, n_areas_);
+
+        constexpr double time_limit_msec = 500.0;
+        std::clock_t clock_start = std::clock();
+        bool running {true};
+        Num loop_count {0};
+        while(running) {
+            ++loop_count;
+            std::clock_t clock_now = std::clock();
+            const auto elapsed_msec = 1000.0 * ((clock_now - clock_start)) / CLOCKS_PER_SEC;
+            if (elapsed_msec > time_limit_msec) {
+                running = false;
+                break;
+            }
+
+            const auto area_left_id = dist_area(engine);
+            const auto ward_left_id = area_to_ward_.at(area_left_id);
+            RandomDist dist_ward(1, n_wards_);
+
+            const auto candidate_areas = adjacent_areas_.adjacent_area_ids(area_left_id);
+            auto candidate_size = candidate_areas.size();
+            if (candidate_size == 0) {
+                continue;
+            }
+            RandomDist dist(0, candidate_size - 1);
+            const auto ward_right_id = area_to_ward_.at(candidate_areas.at(dist(engine)));
+
+            if (ward_left_id == ward_right_id) {
+                continue;
+            }
+
+            const auto& area_left = areas_.at(area_left_id);
+            auto& ward_left = wards_.at(ward_left_id - 1);
+            auto& ward_right = wards_.at(ward_right_id - 1);
+
+            const Num score_before = score_inner();
+            area_to_ward_.at(area_left_id) = ward_right_id;
+            const Num score_after = score_inner();
+
+            if (score_before < score_after) {
+                ward_left.remove(area_left);
+                ward_right.add(area_left);
+            } else {
+                area_to_ward_.at(area_left_id) = ward_left_id;
+            }
+        }
+
+        std::cerr << loop_count << "|";
     }
 };
 
