@@ -74,12 +74,13 @@ class Problem:
     問題
     """
 
-    def __init__(self, problem_id, test_case_topdir):
+    def __init__(self, solver, test_case_topdir):
         """
         指定した問題(problem_id)のテストケースを test_case_topdir/ から読んで準備する
         準備に失敗したら例外を投げる
         """
         # 問題の大文字小文字を区別しないが、内部的には統一する
+        problem_id = re.search(r"^(\D\d\d)", solver).group(1)
         canonical_id = problem_id.strip().upper()
         test_case_dir = None
         exefile_name = None
@@ -93,7 +94,7 @@ class Problem:
 
         # 実行ファイル名は、大文字のみか小文字のみかどちらかで、拡張子.exeの有無は問わない
         # 最後に見つかった実行ファイルを使う
-        for base_name in [canonical_id, canonical_id.lower()]:
+        for base_name in [solver, solver.lower()]:
             for exe_name in [base_name, base_name + ".exe"]:
                 filename = os.path.join("./", exe_name)
                 if os.path.isfile(filename):
@@ -105,7 +106,7 @@ class Problem:
 
         if exefile_name is None:
             raise FileNotFoundError(
-                f"No executable for {canonical_id} found\n")
+                f"No executable for {solver} found\n")
 
         self.exefile_name = exefile_name
         self.set_files(test_case_dir=test_case_dir)
@@ -173,13 +174,13 @@ def main():
         print(HELP_MESSAGE)
         return
 
-    problem_id = sys.argv[1]
+    solver = sys.argv[1]
     test_case_topdir = DEFAULT_TEST_CASE_TOPDIR
     if len(sys.argv) > 2:
         test_case_topdir = sys.argv[2]
 
     exit_status_code = Problem(
-        problem_id=problem_id, test_case_topdir=test_case_topdir).run()
+        solver=solver, test_case_topdir=test_case_topdir).run()
     sys.exit(exit_status_code)
 
 
