@@ -5,8 +5,11 @@
 競技プログラミングの鉄則 問題C20
 について、公開されているテストケース100個を解いて得点を求めます。
 
-実行方法(C20の実行ファイルはmakeするなりしてあらかじめ用意してください)
-$ python3 solve_c20.py
+実行方法
+$ python3 solve_c20.py c20
+
+C20の実行ファイルはmakeするなりしてあらかじめ用意してください。
+第一引数は実行ファイル名を書きます。省略時は c20 です。
 
 標準出力の内容は、スコアだけ(正確には数字以外で始まる行の数字だけ)出力します。
 標準エラー出力の内容はそのまま出力します。デバッグにご利用下さい。
@@ -22,12 +25,12 @@ $ python3 solve_c20.py
 import glob
 import os
 import re
+import sys
 import subprocess
 import natsort
 
 DEFAULT_TEST_CASE = "testcase/c20/sample-in"
-COMMAND_LINE = ["./c20", "score"]
-TIMEOUT_SEC = 5
+TIMEOUT_SEC = 10
 
 
 def solve_one(command_line, input_filename):
@@ -65,7 +68,15 @@ def main():
     """
     一通り実行する
     """
-    solve_all(command_line=COMMAND_LINE, test_case_dir=DEFAULT_TEST_CASE)
+    solver = "c20"
+    if len(sys.argv) > 1:
+        solver = sys.argv[1]
+
+    if os.path.dirname(solver) == "":
+        solver = os.path.join(".", solver)
+
+    command_line = [solver, "score"]
+    solve_all(command_line=command_line, test_case_dir=DEFAULT_TEST_CASE)
 
 
 if __name__ == "__main__":
