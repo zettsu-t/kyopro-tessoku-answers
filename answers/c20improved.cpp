@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39829412
+// https://atcoder.jp/contests/tessoku-book/submissions/39837418
 #include <algorithm>
 #include <bitset>
 #include <chrono>
@@ -25,6 +25,7 @@ namespace {
     constexpr Num CITY_MAX_HEIGHT {50};
     constexpr Num NORMALIZED_BASE {100000LL};
     constexpr Num INF {1000000000000LL};
+    using ArticulationPoints = std::vector<bool>;
 
     Num normalized_score(Num population, Num n_employees) {
         return std::min(population, n_employees);
@@ -398,6 +399,7 @@ struct Area {
 
 struct Ward {
     using Areas = std::unordered_map<Num, const Area*>;
+    using AreaIds = std::vector<Num>;
     Num id_ {OUT_OF_CITY};
     Num population_ {0};
     Num n_employees_ {0};
@@ -414,6 +416,55 @@ struct Ward {
 
     void update() {
         normalized_  = normalized_score(population_, n_employees_);
+    }
+
+    void set_articulation_points(const std::vector<Area>& areas, ArticulationPoints& points) {
+        std::vector<Num> area_id_set;
+        for(const auto& left : areas_) {
+            area_id_set.push_back(left.first);
+        }
+
+        std::vector<Num> non_articulation_area_ids;
+        auto size = static_cast<Num>(area_id_set.size());
+        for(decltype(size) excluded{0}; excluded<size; ++excluded) {
+            UnionFindTree tree(size);
+            for(decltype(size) left{0}; left<size; ++left) {
+                if (left == excluded) {
+                    continue;
+                }
+                for(decltype(size) right{left+1}; right<size; ++right) {
+                    if (right == excluded) {
+                        continue;
+                    }
+                    if (areas.at(area_id_set[left]).adjacent(areas.at(area_id_set[right]))) {
+                        tree.connect(left, right);
+                    }
+                }
+            }
+
+            bool disjoint {false};
+            std::optional<Num> root;
+            for(decltype(size) left{0}; left<size; ++left) {
+                if (left == excluded) {
+                    continue;
+                }
+
+                auto node = tree.find(left);
+                if (!std::holds_alternative<UnionFindTree::Root>(node)) {
+                    disjoint = true;
+                    break;
+                }
+
+                auto id = std::get<UnionFindTree::Root>(node).id_;
+                if (root.has_value() && (root.value() != id)) {
+                    disjoint = true;
+                    break;
+                }
+                root = id;
+            }
+
+            points.at(area_id_set.at(excluded)) = disjoint;
+        }
     }
 
     void add(const Area* area) {
@@ -566,7 +617,7 @@ struct AdjacentWards {
         return adj_tree_->common(left_ward_id, right_ward_id);
     }
 
-    WardIds adjacent_area_ids(Num ward_id) const {
+    WardIds adjacent_area_as_ward_ids(Num ward_id) const {
         WardIds ids;
         for(decltype(size_) other{1}; other <= size_; ++other) {
             if (adjacent(ward_id, other)) {
@@ -580,7 +631,7 @@ struct AdjacentWards {
 
 struct Score {
     using ConnectedSet = std::vector<std::optional<bool>>;
-    std::vector<Ward>& wards_;
+    std::vector<Ward> *wards_;
     ConnectedSet connected_set_;
     bool connected_{true};
     Num max_population_{0};
@@ -588,7 +639,7 @@ struct Score {
     Num max_n_employees_{0};
     Num min_n_employees_{INF};
 
-    Score(std::vector<Ward>& wards, Num n_wards) : wards_(wards) {
+    Score(std::vector<Ward>* wards, Num n_wards) : wards_(wards) {
         ConnectedSet connected_set(n_wards);
         std::swap(connected_set_, connected_set);
     }
@@ -597,7 +648,7 @@ struct Score {
         connected_set_.at(wards_id - 1).reset();
     }
 
-    Num calc() {
+    Num calculate(bool already_connected) {
         connected_ = true;
         max_population_ = 0;
         min_population_ = INF;
@@ -605,13 +656,16 @@ struct Score {
         min_n_employees_ = INF;
         Num index{0};
 
-        for(const auto& ward : wards_) {
-            if (!connected_set_.at(index).has_value()) {
-                connected_set_.at(index) = ward.connected();
-            }
-            connected_ &= connected_set_.at(index).value();
-            if (!connected_) {
-                return 0;
+        for(const auto& ward : *wards_) {
+            if (!already_connected) {
+                if (!connected_set_.at(index).has_value()) {
+                    connected_set_.at(index) = ward.connected();
+                }
+
+                connected_ &= connected_set_.at(index).value();
+                if (!connected_) {
+                    return 0;
+                }
             }
 
             max_population_ = std::max(max_population_, ward.population_);
@@ -749,7 +803,7 @@ struct City {
 
                 Num min_normalized {INF};
                 std::optional<Num> ward_index;
-                for(const auto& other_ward_id : adjacent_wards.adjacent_area_ids(source.id_)) {
+                for(const auto& other_ward_id : adjacent_wards.adjacent_area_as_ward_ids(source.id_)) {
                     const auto other_index = other_ward_id - 1;
                     const auto& other = sub_wards.at(other_index);
                     if ((other.id_ == OUT_OF_CITY) ||
@@ -801,6 +855,7 @@ struct City {
             wards.push_back(ward);
             ++ward_serial;
         }
+
         std::swap(wards_, wards);
         std::swap(area_to_ward_, area_to_ward);
     }
@@ -902,6 +957,11 @@ struct City {
     }
 
     void swap_areas() {
+        ArticulationPoints articulation_points(n_areas_ + 1, false);
+        for(decltype(n_areas_) i{0}; i<n_wards_; ++i) {
+            wards_.at(i).set_articulation_points(areas_, articulation_points);
+        }
+
         std::vector<Num> sorted_ward_ids;
         sorted_ward_ids.reserve(n_wards_);
         for(Num ward_id{1}; ward_id<=n_wards_; ++ward_id) {
@@ -919,14 +979,17 @@ struct City {
             clock_start_ = std::clock();
         }
 
-        Score score(wards_, n_wards_);
+        Score score(&wards_, n_wards_);
         Num total_count {0};
         Num loop_count {0};
-        Num score_before = score.calc();
+        Num loop_unit {1};
+        loop_unit <<= 12;
+        Num score_before = score.calculate(false);
 
         for(;;) {
+            ++total_count;
             ++loop_count;
-            if (loop_count > 4096) {
+            if (loop_count > loop_unit) {
                 std::clock_t clock_now = std::clock();
                 const auto elapsed_msec = 1000.0 * ((clock_now - clock_start_)) / CLOCKS_PER_SEC;
                 if (elapsed_msec > time_limit_msec) {
@@ -935,17 +998,30 @@ struct City {
                 loop_count = 0;
             }
 
-            const auto area_left_id = dist_area(engine);
-            const auto ward_left_id = area_to_ward_.at(area_left_id);
-            const auto& candidate_areas = adjacent_areas_.adjacent_area_ids(area_left_id);
-            auto candidate_size = candidate_areas.size();
-            if (candidate_size == 0) {
+            Num area_left_id {0};
+            Num ward_left_id {0};
+            Num ward_right_id {0};
+            area_left_id = dist_area(engine);
+            if (articulation_points.at(area_left_id)) {
                 continue;
             }
-            RandomDist dist(0, candidate_size - 1);
-            const auto ward_right_id = area_to_ward_.at(candidate_areas.at(dist(engine)));
+            ward_left_id = area_to_ward_.at(area_left_id);
 
-            if (ward_left_id == ward_right_id) {
+            for(Num i=0; i<1; ++i) {
+                const auto& candidate_areas = adjacent_areas_.adjacent_area_as_ward_ids(area_left_id);
+                auto candidate_size = candidate_areas.size();
+                if (candidate_size == 0) {
+                    break;
+                }
+
+                RandomDist dist(0, candidate_size - 1);
+                ward_right_id = area_to_ward_.at(candidate_areas.at(dist(engine)));
+                if (ward_left_id != ward_right_id) {
+                    break;
+                }
+            }
+
+            if ((ward_left_id == ward_right_id) || (ward_right_id == 0)) {
                 continue;
             }
 
@@ -958,14 +1034,19 @@ struct City {
 
             area_to_ward_.at(area_left_id) = ward_right_id;
             ward_left.remove(&area_left);
+            if (!ward_left.connected()) {
+                ward_left.add(&area_left);
+                area_to_ward_.at(area_left_id) = ward_left_id;
+                continue;
+            }
+
             ward_right.add(&area_left);
-            score.invalidate(ward_left_id);
-            score.invalidate(ward_right_id);
-            const Num score_after = score.calc();
+            const Num score_after = score.calculate(true);
 
             if (score_before < score_after) {
-                ++total_count;
                 sort_wards(sorted_ward_ids);
+                ward_left.set_articulation_points(areas_, articulation_points);
+                ward_right.set_articulation_points(areas_, articulation_points);
                 score_before = score_after;
             } else {
                 ward_right.remove(&area_left);
