@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/39814354
+// https://atcoder.jp/contests/tessoku-book/submissions/39898036
 #include <algorithm>
 #include <iostream>
 #include <tuple>
@@ -53,7 +53,7 @@ void solve(std::istream& is, std::ostream& os) {
     std::vector<Num> counts(m+1, 0);
 
     Num answer {1};
-    for(auto&& flight : flights) {
+    for(const auto& flight : flights) {
         const auto from = flight.from;
         const auto to = flight.to;
 

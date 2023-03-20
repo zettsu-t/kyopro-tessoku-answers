@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/38960290
+// https://atcoder.jp/contests/tessoku-book/submissions/39897928
 #include <iostream>
 #include <map>
 #include <vector>
@@ -25,35 +25,12 @@ namespace {
     }
 }
 
-std::vector<Num> get_factors(Num n) {
-    std::vector<Num> factors;
-    Num x {1};
-    while((x * x) <= n) {
-        if ((n % x) == 0) {
-            factors.push_back(x);
-        }
-        ++x;
-    }
-
-    std::vector<Num> paired_factors;
-    for(auto it = factors.rbegin(); it != factors.rend(); ++it) {
-        const auto y = *it;
-        if ((y * y) < n) {
-            paired_factors.push_back(n / y);
-        }
-    }
-
-    factors.insert(factors.end(), paired_factors.begin(), paired_factors.end());
-    return factors;
-}
-
 void solve(std::istream& is, std::ostream& os) {
     size_t n {0};
     Num p {0};
     is >> n >> p;
     constexpr Num mod {1000000007};
 
-    const auto factors = get_factors(p);
     std::multimap<Num, Num> nums;
     for(decltype(n) i{0}; i<n; ++i) {
         Num a {0};

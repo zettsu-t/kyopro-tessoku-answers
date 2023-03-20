@@ -1,4 +1,4 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/38904971
+// https://atcoder.jp/contests/tessoku-book/submissions/39897997
 #include <algorithm>
 #include <iostream>
 #include <variant>
@@ -9,17 +9,16 @@ struct UnionFindTree {
     struct None {};
     struct Root {
         Num id_ {0};
+        size_t size_ {0};
     };
     using Id = Num;
     using Node = std::variant<None, Root, Id>;
     using Tree = std::vector<Node>;
-    using TreeSize = std::vector<size_t>;
+    Tree tree_;
 
     UnionFindTree(Num size) {
         Tree tree(size, None{});
-        TreeSize tree_size(size, 0);
         std::swap(tree_, tree);
-        std::swap(tree_size_, tree_size);
     }
 
     static bool compare(const Node& lhs, const Node& rhs) {
@@ -89,47 +88,44 @@ struct UnionFindTree {
         }
 
         if (std::holds_alternative<None>(x_top) && std::holds_alternative<None>(y_top)) {
-            tree_.at(x) = Root{x};
+            tree_.at(x) = Root{x, 2};
             tree_.at(y) = x;
-            tree_size_.at(x) = 2;
-            tree_size_.at(y) = 1;
             return;
         }
 
-        if (std::holds_alternative<None>(x_top) && !std::holds_alternative<None>(y_top)) {
+        if (std::holds_alternative<None>(x_top) && std::holds_alternative<Root>(y_top)) {
+            auto& y_root = std::get<Root>(y_top);
             tree_.at(x) = y;
-            tree_size_.at(x) = 1;
-            tree_size_.at(y) += 1;
+            y_root.size_ += 1;
             compress(x);
             return;
         }
 
-        if (!std::holds_alternative<None>(x_top) && std::holds_alternative<None>(y_top)) {
+        if (std::holds_alternative<Root>(x_top) && std::holds_alternative<None>(y_top)) {
+            auto& x_root = std::get<Root>(x_top);
             tree_.at(y) = x;
-            tree_size_.at(y) = 1;
-            tree_size_.at(x) += 1;
+            x_root.size_ += 1;
             compress(y);
             return;
         }
 
-        const auto x_root_id = std::get<Root>(x_top).id_;
-        const auto y_root_id = std::get<Root>(y_top).id_;
-        const auto x_size = tree_size_.at(x_root_id);
-        const auto y_size = tree_size_.at(y_root_id);
+        auto& x_root = std::get<Root>(x_top);
+        auto& y_root = std::get<Root>(y_top);
+        const auto x_root_id = x_root.id_;
+        const auto y_root_id = y_root.id_;
+        const auto x_size = x_root.size_;
+        const auto y_size = y_root.size_;
 
         if (x_size < y_size) {
             tree_.at(x_root_id) = y_root_id;
-            tree_size_.at(y_root_id) += x_size;
+            y_root.size_ += x_size;
             compress(x_root_id);
         } else {
             tree_.at(y_root_id) = x_root_id;
-            tree_size_.at(x_root_id) += y_size;
+            x_root.size_ += y_size;
             compress(y_root_id);
         }
     }
-
-    Tree tree_;
-    TreeSize tree_size_;
 };
 
 void solve(std::istream& is, std::ostream& os) {

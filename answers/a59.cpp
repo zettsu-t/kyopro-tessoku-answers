@@ -1,11 +1,13 @@
-// https://atcoder.jp/contests/tessoku-book/submissions/38861404
+// https://atcoder.jp/contests/tessoku-book/submissions/39897978
 #include <algorithm>
 #include <iostream>
 #include <vector>
 
-template <typename Element=long long int>
+template <typename Element>
 struct SegmentTree {
-    SegmentTree(size_t size) {
+    using Apply = Element(*)(Element, Element);
+    Apply apply_;
+    SegmentTree(size_t size, Apply apply) : apply_(apply) {
         static_assert(sizeof(size) == 8);
         n_levels_ = 64 - __builtin_clzll(size - 1);
         decltype(n_leaves_) n_leaves {1};
@@ -40,7 +42,7 @@ struct SegmentTree {
             start += width;
             width = next_width;
             offset >>= 1;
-            elements_.at(start + offset) = left + right;
+            elements_.at(start + offset) = apply_(left, right);
         }
     }
 
@@ -67,8 +69,8 @@ struct SegmentTree {
         if ((right < range_center) || (left >= range_center)) {
             return find_detail(left, right, level - 1);
         }
-        return find_detail(left, range_center_prev, level - 1) +
-            find_detail(range_center, right, level - 1);
+        return apply_(find_detail(left, range_center_prev, level - 1),
+                      find_detail(range_center, right, level - 1));
     }
 
     Element find(size_t left, size_t right) {
@@ -100,13 +102,19 @@ struct SegmentTree {
     std::vector<size_t> starts_;
 };
 
-void solve(std::istream& is, std::ostream& os) {
+namespace {
     using Num = long long int;
+    Num apply(Num a, Num b) {
+        return a + b;
+    }
+}
+
+void solve(std::istream& is, std::ostream& os) {
     size_t n {0};
     Num q {0};
     is >> n >> q;
 
-    SegmentTree<Num> segtree(n+1);
+    SegmentTree<Num> segtree(n+1, apply);
     for(decltype(q) i{0}; i<q; ++i) {
         Num c {0};
         is >> c;
