@@ -64,3 +64,7 @@ C20を解いて得点を求める専用のスクリプトも用意しました�
 ```bash
 python3 solve_c20.py
 ```
+
+## コード集
+
+鉄則本を解いた後、AtCoderの問題を解いていますので、そこで使うコード集を併せて置きます。鉄則本の自動採点システムはAtCoderの常設中のコンテストです。コード集は `snipetts/` 、コード集の説明は[こちら](https://github.com/zettsu-t/zettsu-t.github.io/wiki/ABC-lessons-learned)です。
