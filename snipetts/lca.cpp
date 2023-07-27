@@ -359,9 +359,13 @@ TEST_F(TestAll, All) {
 
     EXPECT_EQ(0,   lca_set.calc_distance(1, 1));
     EXPECT_EQ(300, lca_set.calc_distance(1, 2));
+    EXPECT_EQ(300, lca_set.calc_distance(2, 1));
     EXPECT_EQ(700, lca_set.calc_distance(2, 3));
+    EXPECT_EQ(700, lca_set.calc_distance(3, 2));
     EXPECT_EQ(40,  lca_set.calc_distance(2, 5));
+    EXPECT_EQ(40,  lca_set.calc_distance(5, 2));
     EXPECT_EQ(46,  lca_set.calc_distance(2, 9));
+    EXPECT_EQ(46,  lca_set.calc_distance(9, 2));
 }
 
 TEST_F(TestAll, Root) {
@@ -398,17 +402,32 @@ TEST_F(TestAll, Root) {
     EXPECT_EQ(0,   lca_set.calc_distance(1, 1));
     EXPECT_EQ(30,  lca_set.calc_distance(1, 2));
     EXPECT_EQ(130, lca_set.calc_distance(1, 3));
-    EXPECT_EQ(330, lca_set.calc_distance(1, 5));
     EXPECT_EQ(70,  lca_set.calc_distance(1, 4));
+    EXPECT_EQ(330, lca_set.calc_distance(1, 5));
 
+    EXPECT_EQ(30,  lca_set.calc_distance(2, 1));
     EXPECT_EQ(0,   lca_set.calc_distance(2, 2));
     EXPECT_EQ(100, lca_set.calc_distance(2, 3));
     EXPECT_EQ(40,  lca_set.calc_distance(2, 4));
     EXPECT_EQ(300, lca_set.calc_distance(2, 5));
 
+    EXPECT_EQ(130, lca_set.calc_distance(3, 1));
+    EXPECT_EQ(100, lca_set.calc_distance(3, 2));
     EXPECT_EQ(0,   lca_set.calc_distance(3, 3));
     EXPECT_EQ(140, lca_set.calc_distance(3, 4));
     EXPECT_EQ(200, lca_set.calc_distance(3, 5));
+
+    EXPECT_EQ(70,  lca_set.calc_distance(4, 1));
+    EXPECT_EQ(40,  lca_set.calc_distance(4, 2));
+    EXPECT_EQ(140, lca_set.calc_distance(4, 3));
+    EXPECT_EQ(0,   lca_set.calc_distance(4, 4));
+    EXPECT_EQ(340, lca_set.calc_distance(4, 5));
+
+    EXPECT_EQ(330, lca_set.calc_distance(5, 1));
+    EXPECT_EQ(300, lca_set.calc_distance(5, 2));
+    EXPECT_EQ(200, lca_set.calc_distance(5, 3));
+    EXPECT_EQ(340, lca_set.calc_distance(5, 4));
+    EXPECT_EQ(0,   lca_set.calc_distance(5, 5));
 }
 
 int main(int argc, char* argv[]) {
