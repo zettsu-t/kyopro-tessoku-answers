@@ -1,0 +1,200 @@
+[Results (unlimited time to solve)]
+
+=======ABCDEFGH
+ABC312:++++ +
+ABC311:++++
+ABC310:+++-
+ABC309:+++++
+ABC308:+++++
+ABC307:++++
+ABC306:++++
+ABC305:++++-
+ABC304:+++++
+ABC303:+++-+
+ABC302:+++++
+ABC301:++++
+ABC300:++++
+ABC299:++++
+ABC298:++++
+ABC297:+++++
+ABC296:++++
+ABC295:++++
+ABC294:+++++++x
+ABC293:+++---
+ABC292:++++-+
+ABC291:++++++
+ABC290:++++xx
+ABC289:++++
+ABC288:+++-
+ABC287:++++-
+ABC286:++++-
+ABC285:++++
+ABC284:+++++
+ABC283:++++
+ABC282:++++
+ABC281:++++
+ABC280:++++
+ABC279:++++
+ABC278:  +++
+ABC277:  ++-
+ABC276:  +++
+ABC275:  ++
+ABC274:  ++
+ABC273:  ++
+ABC272:  ++
+ABC271:  ++
+ABC270:  ++
+ABC269:  ++-
+ABC268:  ++
+ABC267:  ++
+ABC266:  ++
+ABC265:  ++
+ABC264:  ++
+ABC263:  ++
+ABC262:  ++
+ABC261:  ++
+ABC260:  ++
+ABC259:  ++
+ABC258:  ++
+ABC257:  +-
+ABC256:  ++
+ABC255:  ++
+ABC254:  ++
+ABC253:  +++
+ABC252:  ++
+ABC251:  +-
+ABC250:  ++
+ABC249:  ++
+ABC248:  ++
+ABC247:  ++
+ABC246:  ++
+ABC245:  ++
+ABC244:   ++
+ABC243:   +
+ABC242:   -
+ABC241:   +
+ABC240:   ++
+ABC239:   ++
+ABC238:   +
+ABC237:   +
+ABC236:   +
+ABC235:   +
+ABC234:   ++
+ABC233:   ++
+ABC232:   +
+ABC231:   +
+ABC230:   +-
+ABC229:   ++
+ABC228:   +
+ABC227:   +
+ABC226:   +-
+ABC225:   +
+ABC224:   +
+ABC223:   +-
+ABC222:   ++
+ABC221:   ++
+ABC220:   +++
+ABC219:   +
+ABC218:  +++
+ABC217:   ++
+ABC216:   +++
+ABC215:   --
+ABC214:   +
+ABC213:   ++
+ABC212:   ++
+=======ABCDEFGH
+ABC211:   +
+ABC210:   -
+ABC209:   +
+ABC208:   +
+ABC207:   -
+ABC206:   +
+ABC205:   +
+ABC204:   +
+ABC203:   -
+ABC202:   +
+ABC201:   +
+ABC200:   -
+ABC199:   -
+ABC198:   ++
+ABC197:  +++
+ABC196:   +
+ABC195:   -
+ABC194:   ++
+ABC193:   +
+ABC192:   -+
+ABC191:  +-+
+ABC190:   + +
+ABC189:   ++
+ABC188:   ++
+ABC187:   ++
+ABC186:   +-
+ABC185:   +++
+ABC184:   +--
+ABC183:   +-+
+ABC182:   ++
+ABC181:   +-
+ABC180:   +-
+ABC179:   ++
+ABC178:   +-
+ABC177:   -+
+ABC176:   ++
+ABC175:   -+
+ABC174:  +++-
+ABC173:   +
+ABC172:  +-
+ABC171:   ++
+ABC170:   ++
+ABC169:   +-
+ABC168:   +
+ABC167:   ++
+ABC166:   ++
+ABC165:  ++
+ABC164:   +
+ABC163:   +
+ABC162:   +
+ABC161:   - +
+ABC160:   ++
+ABC159:   ++
+ABC158:   +
+ABC157:   ++
+ABC156:   +-
+ABC155:   --
+ABC154:   +-
+ABC153:   +--
+ABC152:   ++
+ABC151:   ++
+ABC150:   -
+ABC149:   +
+ABC148:   ++-
+ABC147:  ++
+ABC146:   + +
+ABC145:   +-
+ABC144:   ++
+ABC143:   +
+ABC142:   ++
+ABC141:   ++
+ABC140:   -
+ABC139:   ++
+ABC138:   ++
+ABC137:   -
+ABC136:   +
+ABC135:   +
+ABC134:   +-
+ABC133:   ++
+ABC132:   -
+ABC131:   +-
+ABC130:   +
+ABC129:   +-
+ABC128:  ++
+ABC127:   +
+ABC126:   ++
+=======ABCDEF
+ABC120:   +
+ABC117: ++
+ABC116:  +
+ABC113:  +
+ABC106:   +
+ABC098:   +
+AISing 2019:  -
+ARC100:   +
