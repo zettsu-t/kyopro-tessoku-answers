@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC313:+++-+
 ABC312:++++ +
 ABC311:++++
 ABC310:+++-
@@ -69,8 +70,8 @@ ABC248:  ++
 ABC247:  ++
 ABC246:  ++
 ABC245:  ++
-ABC244:   ++
-ABC243:   +
+ABC244:  +++
+ABC243:  ++
 ABC242:   -
 ABC241:   +
 ABC240:   ++
