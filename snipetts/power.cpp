@@ -1,73 +1,116 @@
+#include <limits>
+#include <random>
 #include <vector>
+#include <boost/multiprecision/cpp_int.hpp>
 #include <atcoder/modint.hpp>
 #include <gtest/gtest.h>
 
 namespace {
-    using Num = int;
-    using ModInt = atcoder::modint1000000007;
-}
+    using Num = int64_t;
 
-std::vector<ModInt> two_to_the_power_of_two(void) {
-    std::vector<ModInt> powered(32);
-    powered.at(0) = 2;
-    for(Num i{1}; i<32; ++i) {
-        powered.at(i) = powered.at(i-1) * powered.at(i-1);
-    }
-
-    return powered;
-}
-
-ModInt two_to_the_n_power(Num n) {
-    const auto powered = two_to_the_power_of_two();
-
-    ModInt answer = 1;
-    Num index = 0;
-    Num r = n;
-    while(r > 0) {
-        if ((r & 1) > 0) {
-            answer *= powered.at(index);
+    template <typename T=__int128>
+    Num power(Num base, Num index, Num mod) {
+        const Num x = base % mod;
+        if (x == 0) {
+            return 0;
         }
-        r >>= 1;
-        ++index;
-    }
 
-    return answer;
+        if (x == 1) {
+            return 1;
+        }
+
+        T acc {1};
+        T doubled = x;
+        auto i = index;
+
+        while(i > 0) {
+            if ((i & 1) != 0) {
+                acc *= doubled;
+                acc %= mod;
+            }
+
+            doubled *= doubled;
+            doubled %= mod;
+            i /= 2;
+        }
+
+        return static_cast<Num>(acc);
+    }
 }
 
+template <typename T>
 class TestAll : public ::testing::Test {};
 
-TEST_F(TestAll, TwoToThePowerOfTwo) {
-    const auto actual = two_to_the_power_of_two();
-    const auto expected = {
-               2,         4,         16,       256,
-            65536, 294967268, 582344008, 279632277,
-        792845266, 418385479, 812734592, 409643880,
-        246797651, 112754241, 774491455, 669157962,
-        973586826, 125655169, 385894014, 998632880,
-         36221046, 164150368, 125918023, 405241093,
-        306292255, 816280417, 513497891, 215687307,
-         75265151, 915398907,  71108578, 829787081
-    };
+typedef ::testing::Types<__int128, boost::multiprecision::cpp_int> BigNumTypes;
+TYPED_TEST_CASE(TestAll, BigNumTypes);
 
-    ASSERT_EQ(expected.size(), actual.size());
-    ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
+TYPED_TEST(TestAll, PowerOfTwo) {
+    constexpr Num mod {83};
+    Num base {1};
+
+    for(Num index{0}; index<62; ++index) {
+        const auto actual = power(2, index, mod);
+        EXPECT_EQ(base % mod, actual);
+        base *= 2;
+    }
 }
 
-TEST_F(TestAll, TwoToTheNpower) {
-    std::vector<Num> input {1,2,3,4,5,6,7,8,9,15,16,17,31,32,33,63,64,65,127,128};
-    std::vector<ModInt> actual;
-    for(const auto& i : input) {
-        actual.push_back(two_to_the_n_power(i));
+TYPED_TEST(TestAll, ZeroOne) {
+    constexpr auto num_max = std::numeric_limits<Num>::max();
+    const std::vector<Num> indexes {0, 1, 2, 0x100000001LL, num_max-1, num_max};
+    const std::vector<Num> mods {2, 3, 83, 998244353, 1000000007, 0x100000001LL, num_max-1};
+
+    for(const auto& index : indexes) {
+        for(const auto& mod : mods) {
+            for(Num offset{0}; offset<2; ++offset) {
+                const auto max_n = (num_max / mod) - 1;
+                if (max_n <= 0) {
+                    continue;
+                }
+
+                const std::vector<Num> nums {0, mod, mod*2, (max_n-1)*mod, max_n*mod};
+                for(const auto& base : nums) {
+                    if (base < 0) {
+                        continue;
+                    }
+                    const auto actual = power(base + offset, index, mod);
+                    EXPECT_EQ(offset, actual);
+                }
+            }
+        }
+    }
+}
+
+// https://atcoder.jp/contests/abc228/tasks/abc228_e
+TYPED_TEST(TestAll, ABC228E) {
+    const auto actual = power(15926535, power(14, 3, 998244352), 998244353);
+    EXPECT_EQ(109718301, actual);
+}
+
+TYPED_TEST(TestAll, Random) {
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
+    std::uniform_int_distribution<Num> dist(1000, 1000000000);
+    std::uniform_int_distribution<Num> dist_mod(2, 97);
+
+    for(Num trial{0}; trial<20000; ++trial) {
+        const Num base = dist(engine);
+        const Num index = dist(engine);
+        Num mod {0};
+        if ((trial & 1) > 0) {
+            mod = dist(engine);
+        } else {
+            mod = dist_mod(engine);
+        }
+
+        atcoder::modint::set_mod(mod);
+        atcoder::modint x = base;
+        const auto expected = x.pow(index).val();
+
+        const auto actual = power(base, index, mod);
+        EXPECT_EQ(expected, actual);
     }
 
-    const auto expected = {
-        2, 4, 8, 16, 32, 64, 128, 256, 512,
-        32768, 65536, 131072, 147483634,
-        294967268, 589934536, 291172004, 582344008,
-        164688009 ,639816142, 279632277
-    };
-    ASSERT_EQ(expected.size(), actual.size());
-    ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
 }
 
 int main(int argc, char* argv[]) {
