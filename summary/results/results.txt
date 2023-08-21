@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC315:+++++x
+ABC315:+++++-
 ABC314:++++-+
 ABC313:+++-+
 ABC312:++++ +
@@ -55,11 +55,11 @@ ABC265:  ++
 ABC264:  ++
 ABC263:  ++
 ABC262:  ++
-ABC261:  ++
+ABC261:  +++
 ABC260:  ++
-ABC259:  ++
-ABC258:  ++
-ABC257:  +-
+ABC259:  +++
+ABC258:  +++
+ABC257:  +-+
 ABC256:  +++
 ABC255:  +++
 ABC254:  +++
