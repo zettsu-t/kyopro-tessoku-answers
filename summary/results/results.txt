@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC317:+++++
 ABC315:+++++-
 ABC314:++++-+
 ABC313:+++-+
@@ -42,10 +43,10 @@ ABC278:  +++
 ABC277:  ++-
 ABC276:  +++
 ABC275:  ++
-ABC274:  ++
+ABC274:  ++-
 ABC273:  ++
-ABC272:  ++
-ABC271:  ++
+ABC272:  +++
+ABC271:  ++-
 ABC270:  +++
 ABC269:  ++-
 ABC268:  ++
