@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC318:+++++
 ABC317:+++++
 ABC315:+++++-
 ABC314:++++-+
@@ -21,7 +22,7 @@ ABC300:++++
 ABC299:++++
 ABC298:++++
 ABC297:+++++
-ABC296:++++
+ABC296:+++++
 ABC295:++++
 ABC294:+++++++x
 ABC293:+++---
