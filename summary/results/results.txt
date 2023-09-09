@@ -1,13 +1,14 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC319:+++++
 ABC318:+++++
 ABC317:+++++
 ABC315:+++++-
 ABC314:++++-+
 ABC313:+++-+
 ABC312:++++ +
-ABC311:++++
+ABC311:++++-
 ABC310:+++-+
 ABC309:+++++
 ABC308:+++++
