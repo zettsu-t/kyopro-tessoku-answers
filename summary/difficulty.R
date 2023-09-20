@@ -79,7 +79,9 @@ read_results <- function(path, contest_name) {
     # はコンテストABC277のA,Bは解いていない、C,Dは解けた、Eは解けなかった、F以降は解いていない
     # ことを示す。+は解けた、空白は解いていない、それ以外は解けなかったことを示す
     # :の直後にA問題の結果を置く。:と結果の間には何も書かない。
-    matched <- stringr::str_match(line, "^[\\D]*(\\d{3}):(.{1,8})")
+    pattern <- paste0("^", name, "(\\d{3}):(.{1,8})")
+    matched <- stringr::str_match(line, regex(pattern, ignore_case=TRUE))
+
     if (is.na(matched[1, 1])) {
       acc_all
     } else {
@@ -189,6 +191,9 @@ draw_histogram <- function(df_score, contest_name) {
 
 ## コンテストを限定して結果を集計する
 execute_all <- function(result_filename, df_contests, contest_name, out_dirname) {
+  inner_name <- stringr::str_to_lower(contest_name)
+  png_suffix <- paste0("_", inner_name, ".png")
+
   df_target <- select_contests(
     df_contest = df_contests, contest_name = contest_name,
     out_dirname = out_dirname
@@ -197,9 +202,9 @@ execute_all <- function(result_filename, df_contests, contest_name, out_dirname)
   df_score <- merge_score(df_tasks = df_target, df_results = df_results)
 
   g_scatter <- draw_scatter_plot(df_score = df_score, contest_name = contest_name)
-  ggsave("images/score.png", plot = g_scatter, width = 6, height = 4)
+  ggsave(paste0("images/score", png_suffix), plot = g_scatter, width = 6, height = 4)
   g_histogram <- draw_histogram(df_score = df_score, contest_name = contest_name)
-  ggsave("images/hist.png", plot = g_histogram, width = 6, height = 4)
+  ggsave(paste0("images/hist", png_suffix), plot = g_histogram, width = 6, height = 4)
 
   list(
     df_target = df_target, df_results = df_results, df_score = df_score,
@@ -215,8 +220,14 @@ execute_all <- function(result_filename, df_contests, contest_name, out_dirname)
 df_all_contests <- read_task_difficulties(file.path(g_incoming_data_dir, "problem-models.json"))
 
 # ABC (AtCoder Beginner Contest) に限る
-result <- execute_all(
+result_abc <- execute_all(
   result_filename = "results/results.txt",
   df_contests = df_all_contests, contest_name = "ABC",
+  out_dirname = g_incoming_data_dir
+)
+
+result_arc <- execute_all(
+  result_filename = "results/results.txt",
+  df_contests = df_all_contests, contest_name = "ARC",
   out_dirname = g_incoming_data_dir
 )

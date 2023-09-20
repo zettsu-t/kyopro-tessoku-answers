@@ -19,6 +19,8 @@ ABC312:++++ +
 
 書式は、コンテスト、区切り文字 `:` 、A..H問題の成績です。 `+` は解けた、半角空白 ` ` は解いていない、それの文字以外は解けなかったことを示します。区切り文字 `:` の次がA問題で、間に区切り文字や空白は入れません。
 
+ARC103およびそれ以前は二文字分ずらします(C問題をA問題、D問題をB問題と読み替えた位置に成績を書く)。
+
 [成績表の例](results/results.txt) を置きました。AtCoder Beginner Contest を私が時間無制限で解けたかどうかです。
 
 ## 成績表を作る
@@ -31,13 +33,13 @@ Rで成績表を作ります。 `images/` ディレクトリに散布図とヒ�
 Rscript difficulty.R
 ```
 
-併せて、次に実行するPythonスクリプト用に、問題の難易度を `incoming_data/difficulty_auto_abc.csv` に出力します。
+併せて、次に実行するPythonスクリプト用に、ABCの各問題の難易度を `incoming_data/difficulty_auto_abc.csv` に出力します。ARCの各問題の難易度は `incoming_data/difficulty_auto_arc.csv` に出力します。
 
 RのREPLから `difficulty.R` を実行すると、 `execute_all()` の返り値に結果がいろいろ入っています。
 
 ### テキストでみる
 
-一行に一コンテスト分の結果を示します。A..H問題について、難易度と解けたかどうかをプレーンテキストで出力します。
+一行に一コンテスト分の結果を示します。A..H問題について、難易度と解けたかどうかをプレーンテキストで出力します。デフォルトではABCとARCについてそれぞれ出力します。
 
 ```bash
 python3 difficulty.py

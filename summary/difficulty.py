@@ -16,6 +16,7 @@ re_id_pattern = "^[\\D]*(\\d{3})"
 
 def collect_results(lower_id, upper_id, difficulty_filename, result_filename):
     difficulty_map = {}
+
     with open(difficulty_filename) as f:
         for line in f:
             s = line.strip()
@@ -56,7 +57,7 @@ def collect_results(lower_id, upper_id, difficulty_filename, result_filename):
             continue
 
         if not key in difficulty_map:
-            print("Warning: missing {}".format(key))
+#           print("Warning: missing {}".format(key))
             continue
 
         difficulties = difficulty_map[key]
@@ -104,7 +105,13 @@ def parse_command_line():
     # 1(灰),1(灰),2(茶),不明,5(青) という意味。6問目以降は問題が無いか難易度が不明。
     # :の直後にA問題の結果を置く。:と結果の間には何も書かない。
     parser.add_argument("--difficulty_filename", dest="difficulty_filename", type=str,
-                        default="incoming_data/difficulty_auto_abc.csv", help="Textfile for difficulty of tasks")
+                        default=None, help="Textfile for difficulty of tasks")
+
+    # コンテスト名(,区切りで複数可)
+    args_list = lambda x:list(map(str, x.split(',')))
+    parser.add_argument("--contests", dest="contests", type=args_list,
+                        default=["abc", "arc"], help="Names of contests")
+
     # 問題を解いた結果
     # "ABC297: ++ -" はコンテスト ABC297の1..5問目を
     # 未回答、解けた、解けた、未回答、解けなかったという意味。6問目以降は未回答。
@@ -119,12 +126,20 @@ def execute_all():
     upper_id = args.upper_id
     difficulty_filename = args.difficulty_filename
     result_filename = args.result_filename
+    contests = args.contests
 
-    result_lines, summary_lines = collect_results(
-        lower_id = lower_id, upper_id = upper_id,
-        difficulty_filename = difficulty_filename, result_filename = result_filename)
-    print(result_lines)
-    print(summary_lines)
+    difficulty_filenames = []
+    if difficulty_filename:
+        difficulty_filenames = [difficulty_filename]
+    else:
+        difficulty_filenames = ["incoming_data/difficulty_auto_{}.csv".format(name.lower()) for name in contests]
+
+    for difficulty_filename in difficulty_filenames:
+        result_lines, summary_lines = collect_results(
+            lower_id = lower_id, upper_id = upper_id,
+            difficulty_filename = difficulty_filename, result_filename = result_filename)
+        print(result_lines)
+        print(summary_lines)
 
 if __name__ == "__main__":
     execute_all()
