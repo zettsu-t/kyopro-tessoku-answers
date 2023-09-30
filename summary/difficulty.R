@@ -212,22 +212,33 @@ execute_all <- function(result_filename, df_contests, contest_name, out_dirname)
   )
 }
 
+execute_all_contests <- function(contest_names) {
+  result_all <- purrr::reduce(.x = contest_names, .init = NULL, .f = function(acc, name) {
+    result <- execute_all(
+      result_filename = "results/results.txt",
+      df_contests = df_all_contests, contest_name = name,
+      out_dirname = g_incoming_data_dir
+    )
+
+    if (is.null(acc)) {
+      list(results = list(result), df_all = result$df_score, all_names = name)
+    } else {
+      all_names <- paste0(acc$all_names, "/", name)
+      list(results = append(acc$results, list(result)),
+           df_all = dplyr::bind_rows(acc$df_all, result$df_score),
+           all_names = all_names)
+    }
+  })
+
+  g_all <- draw_histogram(df_score = result_all$df_all, contest_name = result_all$all_names)
+  ggsave("images/hist_all.png", plot = g_all, width = 6, height = 4)
+  list(result_all)
+}
+
 # 難易度をAtCoder Problemsからダウンロードする
 # https://github.com/kenkoooo/AtCoderProblems/blob/master/doc/api.md
 # からリンクされている
 # https://kenkoooo.com/atcoder/resources/problem-models.json
 # 何度もダウンロードしないように、解析はローカルのファイルを読む
 df_all_contests <- read_task_difficulties(file.path(g_incoming_data_dir, "problem-models.json"))
-
-# ABC (AtCoder Beginner Contest) に限る
-result_abc <- execute_all(
-  result_filename = "results/results.txt",
-  df_contests = df_all_contests, contest_name = "ABC",
-  out_dirname = g_incoming_data_dir
-)
-
-result_arc <- execute_all(
-  result_filename = "results/results.txt",
-  df_contests = df_all_contests, contest_name = "ARC",
-  out_dirname = g_incoming_data_dir
-)
+results <- execute_all_contests(contest_names = c("ABC", "ARC", "AGC"))

@@ -110,7 +110,7 @@ def parse_command_line():
     # コンテスト名(,区切りで複数可)
     args_list = lambda x:list(map(str, x.split(',')))
     parser.add_argument("--contests", dest="contests", type=args_list,
-                        default=["abc", "arc"], help="Names of contests")
+                        default=["abc", "arc", "agc"], help="Names of contests")
 
     # 問題を解いた結果
     # "ABC297: ++ -" はコンテスト ABC297の1..5問目を

@@ -21,7 +21,7 @@ ABC312:++++ +
 
 ARC103およびそれ以前は二文字分ずらします(C問題をA問題、D問題をB問題と読み替えた位置に成績を書く)。
 
-[成績表の例](results/results.txt) を置きました。AtCoder Beginner Contest を私が時間無制限で解けたかどうかです。
+[成績表の例](results/results.txt) を置きました。AtCoder Beginner/Regular/Grand Contest を私が時間無制限で解けたかどうかです。
 
 ## 成績表を作る
 
@@ -33,13 +33,13 @@ Rで成績表を作ります。 `images/` ディレクトリに散布図とヒ�
 Rscript difficulty.R
 ```
 
-併せて、次に実行するPythonスクリプト用に、ABCの各問題の難易度を `incoming_data/difficulty_auto_abc.csv` に出力します。ARCの各問題の難易度は `incoming_data/difficulty_auto_arc.csv` に出力します。
+併せて、次に実行するPythonスクリプト用に、ABCの各問題の難易度を `incoming_data/difficulty_auto_abc.csv` に出力します。ARCの各問題の難易度は `incoming_data/difficulty_auto_arc.csv` に出力します。つまりコンテストごとに異なるCSVファイルを出力します。
 
-RのREPLから `difficulty.R` を実行すると、 `execute_all()` の返り値に結果がいろいろ入っています。
+RのREPLから `difficulty.R` を実行すると、 `execute_all_contests()` の返り値にコンテストごとの集計結果がいろいろ入っています。
 
 ### テキストでみる
 
-一行に一コンテスト分の結果を示します。A..H問題について、難易度と解けたかどうかをプレーンテキストで出力します。デフォルトではABCとARCについてそれぞれ出力します。
+一行に一コンテスト分の結果を示します。A..H問題について、難易度と解けたかどうかをプレーンテキストで出力します。デフォルトではABC, ARC, AGCについてそれぞれ出力します。
 
 ```bash
 python3 difficulty.py
