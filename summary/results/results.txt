@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC322:+++++x
+ABC322:+++++-
 ABC321:+++++-
 ABC320:+++++
 ABC319:+++++
