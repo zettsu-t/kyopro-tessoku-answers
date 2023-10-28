@@ -1,63 +1,71 @@
 #include <algorithm>
 #include <limits>
-#include <boost/multi_array.hpp>
 #include <gtest/gtest.h>
 
 using Num = long long int;
 using Distance = long long int;
-using Matrix = boost::multi_array<Distance, 2>;
-using MatrixShape = boost::array<Matrix::index, 2>;
+constexpr Num MaxWidth = 1000;
+using Matrix = std::array<std::array<Num, MaxWidth>, MaxWidth>;
 
 void floyd_warshall(Num n, Matrix& distances) {
-    for(decltype(n) i{1}; i<=n; ++i) {
-        for(decltype(n) x{1}; x<=n; ++x) {
-            for(decltype(n) y{1}; y<=n; ++y) {
+    for(decltype(n) i{0}; i<n; ++i) {
+        for(decltype(n) x{0}; x<n; ++x) {
+            for(decltype(n) y{0}; y<n; ++y) {
                 distances[x][y] = std::min(distances[x][y], distances[x][i] + distances[i][y]);
             }
         }
     }
 }
 
-class TestAll : public ::testing::Test {};
+void init_array(Matrix& distances, Num value) {
+    for(Num i{0}; i<MaxWidth; ++i) {
+        for(Num j{0}; j<MaxWidth; ++j) {
+            distances[i][j] = value;
+        }
+    }
+}
+
+class TestAll : public ::testing::Test {
+protected:
+    Matrix actual;
+    Matrix expected;
+};
 
 TEST_F(TestAll, All) {
-    Num n = 4;
-    const Num size = n + 1;
+    constexpr Num n = 5;
+    static_assert(n < MaxWidth);
     constexpr Distance inf = 100000000000LL;
 
-    MatrixShape shape {{size, size}};
-    Matrix actual(shape);
-    std::fill_n(actual.data(), actual.num_elements(), inf);
-    actual[1][2] = 10;
-    actual[2][4] = 20;
-    actual[1][4] = 40;
-    actual[2][2] = 0;
-    actual[2][1] = 6;
-    actual[4][2] = 3;
-    actual[4][1] = 5;
+    init_array(actual, inf);
+    actual[0][1] = 10;
+    actual[1][3] = 20;
+    actual[0][3] = 40;
+    actual[1][1] = 0;
+    actual[1][0] = 6;
+    actual[3][1] = 3;
+    actual[3][0] = 5;
 
-    Matrix expected(shape);
-    std::fill_n(expected.data(), expected.num_elements(), inf);
-    expected[1][1] = 16;
-    expected[1][2] = 10;
-    expected[1][3] = inf;
-    expected[1][4] = 30;
-    expected[2][1] = 6;
-    expected[2][2] = 0;
+    init_array(expected, inf);
+    expected[0][0] = 16;
+    expected[0][1] = 10;
+    expected[0][2] = inf;
+    expected[0][3] = 30;
+    expected[1][0] = 6;
+    expected[1][1] = 0;
+    expected[1][2] = inf;
+    expected[1][3] = 20;
+    expected[2][0] = inf;
+    expected[2][1] = inf;
+    expected[2][2] = inf;
     expected[2][3] = inf;
-    expected[2][4] = 20;
-    expected[3][1] = inf;
+    expected[3][0] = 5;
+    expected[3][1] = 3;
     expected[3][2] = inf;
-    expected[3][3] = inf;
-    expected[3][4] = inf;
-    expected[4][1] = 5;
-    expected[4][2] = 3;
-    expected[4][3] = inf;
-    expected[4][4] = 23;
+    expected[3][3] = 23;
 
     floyd_warshall(n, actual);
-    for(decltype(n) x{1}; x<=n; ++x) {
-        for(decltype(n) y{1}; y<=n; ++y) {
+    for(Num x{1}; x<=n; ++x) {
+        for(Num y{1}; y<=n; ++y) {
             EXPECT_EQ(expected[y][x], actual[y][x]);
         }
     }

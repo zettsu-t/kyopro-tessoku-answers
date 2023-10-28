@@ -11,7 +11,7 @@ TARGETS=$(notdir $(basename $(SOURCES)))
 
 CXX=g++
 LD=g++
-CPPFLAGS=-std=gnu++17 -Wall -Wextra -I . -O0 -g $(GTEST_GMOCK_INCLUDE)
+CPPFLAGS=-std=gnu++20 -Wall -Wextra -I . -O0 -g $(GTEST_GMOCK_INCLUDE)
 LIBPATH=
 LDFLAGS=
 LIBS=-pthread

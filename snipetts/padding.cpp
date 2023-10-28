@@ -9,11 +9,11 @@ using Num = long long int;
 class TestAll : public ::testing::Test {};
 
 TEST_F(TestAll, Setw) {
-    const long long int input = 123456;
+    const long long int value = 123456;
     const std::string base {"123456"};
     for(int width=0; width<100; ++width) {
         std::ostringstream oss;
-        oss << std::setfill('0') << std::setw(width) << input;
+        oss << std::setfill('0') << std::setw(width) << value;
 
         if (width<=6) {
             EXPECT_EQ(base, oss.str());
@@ -26,11 +26,11 @@ TEST_F(TestAll, Setw) {
 }
 
 TEST_F(TestAll, SetPrecision) {
-    const double input = 1.123123123123;
+    const double value = 1.123123123123;
     const std::string base {"1.123123123123"};
     for(int width{1}; width<10; ++width) {
         std::ostringstream oss;
-        oss << std::setprecision(width) << input;
+        oss << std::setprecision(width) << value;
 
         auto len = width;
         len += width > 1;
