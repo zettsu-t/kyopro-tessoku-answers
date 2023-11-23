@@ -101,21 +101,21 @@ ABC232:  +++
 ABC231:  ++ +
 ABC230:  ++-
 ABC229:  +++
-ABC228:  ++-
+ABC228: +++-
 ABC227:  ++
 ABC226:  ++-
 ABC225:  ++
 ABC224:  ++
 ABC223:  ++-
 ABC222:   ++
-ABC221:   ++
+ABC221: + ++
 ABC220:   +++
 ABC219:   +
 ABC218:  +++
 ABC217:   ++
 ABC216:   +++
 ABC215:   --
-ABC214:   +
+ABC214:  ++
 ABC213:  +++
 ABC212:   ++
 =======ABCDEFGH
@@ -207,6 +207,7 @@ ABC127:   +
 ABC126:   ++
 =======ABCDEF
 ABC120:   +
+ABC119:  +
 ABC117: ++
 ABC116:  +
 ABC113:  +
