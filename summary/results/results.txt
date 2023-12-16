@@ -1,7 +1,8 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC332:++++-x
+ABC333:+++++
+ABC332:++++--
 ABC331:+++++x
 ABC330:+++++
 ABC329:++++-+
@@ -69,9 +70,9 @@ ABC267: ++++
 ABC266: +++++
 ABC265: ++++
 ABC264: ++++
-ABC263:  ++
-ABC262:  ++
-ABC261:  ++++
+ABC263: +++
+ABC262: +++
+ABC261: +++++
 ABC260:  ++
 ABC259:  +++
 ABC258: ++++
