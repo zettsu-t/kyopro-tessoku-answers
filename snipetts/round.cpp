@@ -135,6 +135,7 @@ TEST_F(TestAll, Ifloor) {
             ASSERT_EQ(expected_div, actual_div);
             ASSERT_EQ(expected_rem, actual_rem);
             ASSERT_EQ(denominator, expected_div * divider + expected_rem);
+            ASSERT_TRUE((expected_div * denominator * divider) >= 0);
             ASSERT_TRUE((divider * actual_rem) >= 0);
         }
     }
@@ -176,6 +177,7 @@ TEST_F(TestAll, Iceil) {
             ASSERT_EQ(expected_div, actual_div);
             ASSERT_EQ(expected_rem, actual_rem);
             ASSERT_EQ(denominator, expected_div * divider + expected_rem);
+            ASSERT_TRUE((expected_div * denominator * divider) >= 0);
             ASSERT_TRUE((divider * actual_rem) <= 0);
         }
     }
@@ -217,6 +219,7 @@ TEST_F(TestAll, Iround) {
             ASSERT_EQ(expected_div, actual_div);
             ASSERT_EQ(expected_rem, actual_rem);
             ASSERT_EQ(denominator, expected_div * divider + expected_rem);
+            ASSERT_TRUE((expected_div * denominator * divider) >= 0);
             ASSERT_TRUE((denominator * actual_rem) >= 0);
         }
     }
