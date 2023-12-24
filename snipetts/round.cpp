@@ -8,12 +8,12 @@ namespace {
     using Num = long long int;
 }
 
-std::pair<Num, Num> ifloor(Num denominator, Num divider) {
-    Num p = denominator;
-    Num q = divider;
+std::pair<Num, Num> ifloor(Num dividend, Num divisor) {
+    Num p = dividend;
+    Num q = divisor;
 
     Num rem_sign = 1;
-    if (divider < 0) {
+    if (divisor < 0) {
         p = -p;
         q = -q;
         rem_sign = -1;
@@ -24,26 +24,26 @@ std::pair<Num, Num> ifloor(Num denominator, Num divider) {
         return zero;
     }
 
-    Num rem {0};
-    Num div {0};
+    Num remainder {0};
+    Num quotient {0};
     if (p >= 0) {
-        rem = p % q;
-        div = p / q;
+        remainder = p % q;
+        quotient = p / q;
     } else {
-        rem = (q - (std::abs(p) % q)) % q;
-        div = (p - rem) / q;
+        remainder = (q - (std::abs(p) % q)) % q;
+        quotient = (p - remainder) / q;
     }
 
-    const std::pair<Num, Num> answer {div, rem_sign * rem};
+    const std::pair<Num, Num> answer {quotient, rem_sign * remainder};
     return answer;
 }
 
-std::pair<Num, Num> iceil(Num denominator, Num divider) {
-    Num p = denominator;
-    Num q = divider;
+std::pair<Num, Num> iceil(Num dividend, Num divisor) {
+    Num p = dividend;
+    Num q = divisor;
 
     Num rem_sign = 1;
-    if (divider < 0) {
+    if (divisor < 0) {
         p = -p;
         q = -q;
         rem_sign = -1;
@@ -54,26 +54,26 @@ std::pair<Num, Num> iceil(Num denominator, Num divider) {
         return zero;
     }
 
-    Num rem {0};
-    Num div {0};
+    Num remainder {0};
+    Num quotient {0};
     if (p >= 0) {
-        rem = (q - p % q) % q;
-        div = (p + rem) / q;
+        remainder = (q - p % q) % q;
+        quotient = (p + remainder) / q;
     } else {
-        rem = std::abs(p) % q;
-        div = (p + rem) / q;
+        remainder = std::abs(p) % q;
+        quotient = (p + remainder) / q;
     }
 
-    const std::pair<Num, Num> answer {div, -rem_sign * rem};
+    const std::pair<Num, Num> answer {quotient, -rem_sign * remainder};
     return answer;
 }
 
-std::pair<Num, Num> iround(Num denominator, Num divider) {
-    Num p = denominator;
-    Num q = divider;
+std::pair<Num, Num> iround(Num dividend, Num divisor) {
+    Num p = dividend;
+    Num q = divisor;
 
     Num rem_sign = 1;
-    if (divider < 0) {
+    if (divisor < 0) {
         p = -p;
         q = -q;
         rem_sign = -1;
@@ -86,23 +86,23 @@ std::pair<Num, Num> iround(Num denominator, Num divider) {
 
     const Num sign = (p > 0) ? 1 : -1;
     const Num abs_p = std::abs(p);
-    const Num div = sign * (abs_p / q);
-    const Num rem = sign * (abs_p % q);
-    const std::pair<Num, Num> answer {div, rem_sign * rem};
+    const Num quotient = sign * (abs_p / q);
+    const Num remainder = sign * (abs_p % q);
+    const std::pair<Num, Num> answer {quotient, rem_sign * remainder};
     return answer;
 }
 
 struct TestCase {
-    Num divider {0};
+    Num divisor {0};
     const std::vector<std::pair<Num, Num>> expected;
 };
 
 class TestAll : public ::testing::Test {};
 
 TEST_F(TestAll, IfloorZeros) {
-    const auto [div, rem] = ifloor(1LL, 0LL);
-    ASSERT_EQ(0, div);
-    ASSERT_EQ(0, rem);
+    const auto [quotient, remainder] = ifloor(1LL, 0LL);
+    ASSERT_EQ(0, quotient);
+    ASSERT_EQ(0, remainder);
 }
 
 TEST_F(TestAll, Ifloor) {
@@ -124,27 +124,27 @@ TEST_F(TestAll, Ifloor) {
     };
 
     for(const auto& test_case : test_cases) {
-        const auto divider = test_case.divider;
+        const auto divisor = test_case.divisor;
         const auto& expected = test_case.expected;
         ASSERT_EQ(test_size, expected.size());
 
-        Num denominator_index {0};
-        for(Num denominator{-width}; denominator<=width; ++denominator, ++denominator_index) {
-            const auto [actual_div, actual_rem] = ifloor(denominator, divider);
-            const auto [expected_div, expected_rem] = expected.at(denominator_index);
-            ASSERT_EQ(expected_div, actual_div);
+        Num dividend_index {0};
+        for(Num dividend{-width}; dividend<=width; ++dividend, ++dividend_index) {
+            const auto [actual_quo, actual_rem] = ifloor(dividend, divisor);
+            const auto [expected_quo, expected_rem] = expected.at(dividend_index);
+            ASSERT_EQ(expected_quo, actual_quo);
             ASSERT_EQ(expected_rem, actual_rem);
-            ASSERT_EQ(denominator, expected_div * divider + expected_rem);
-            ASSERT_TRUE((expected_div * denominator * divider) >= 0);
-            ASSERT_TRUE((divider * actual_rem) >= 0);
+            ASSERT_EQ(dividend, expected_quo * divisor + expected_rem);
+            ASSERT_TRUE((expected_quo * dividend * divisor) >= 0);
+            ASSERT_TRUE((divisor * actual_rem) >= 0);
         }
     }
 }
 
 TEST_F(TestAll, IceilZeros) {
-    const auto [div, rem] = iceil(1LL, 0LL);
-    ASSERT_EQ(0, div);
-    ASSERT_EQ(0, rem);
+    const auto [quotient, remainder] = iceil(1LL, 0LL);
+    ASSERT_EQ(0, quotient);
+    ASSERT_EQ(0, remainder);
 }
 
 TEST_F(TestAll, Iceil) {
@@ -166,27 +166,27 @@ TEST_F(TestAll, Iceil) {
     };
 
     for(const auto& test_case : test_cases) {
-        const auto divider = test_case.divider;
+        const auto divisor = test_case.divisor;
         const auto& expected = test_case.expected;
         ASSERT_EQ(test_size, expected.size());
 
-        Num denominator_index {0};
-        for(Num denominator{-width}; denominator<=width; ++denominator, ++denominator_index) {
-            const auto [actual_div, actual_rem] = iceil(denominator, divider);
-            const auto [expected_div, expected_rem] = expected.at(denominator_index);
-            ASSERT_EQ(expected_div, actual_div);
+        Num dividend_index {0};
+        for(Num dividend{-width}; dividend<=width; ++dividend, ++dividend_index) {
+            const auto [actual_quo, actual_rem] = iceil(dividend, divisor);
+            const auto [expected_quo, expected_rem] = expected.at(dividend_index);
+            ASSERT_EQ(expected_quo, actual_quo);
             ASSERT_EQ(expected_rem, actual_rem);
-            ASSERT_EQ(denominator, expected_div * divider + expected_rem);
-            ASSERT_TRUE((expected_div * denominator * divider) >= 0);
-            ASSERT_TRUE((divider * actual_rem) <= 0);
+            ASSERT_EQ(dividend, expected_quo * divisor + expected_rem);
+            ASSERT_TRUE((expected_quo * dividend * divisor) >= 0);
+            ASSERT_TRUE((divisor * actual_rem) <= 0);
         }
     }
 }
 
 TEST_F(TestAll, IroundZeros) {
-    const auto [div, rem] = iceil(1LL, 0LL);
-    ASSERT_EQ(0, div);
-    ASSERT_EQ(0, rem);
+    const auto [quotient, remainder] = iceil(1LL, 0LL);
+    ASSERT_EQ(0, quotient);
+    ASSERT_EQ(0, remainder);
 }
 
 TEST_F(TestAll, Iround) {
@@ -208,19 +208,19 @@ TEST_F(TestAll, Iround) {
     };
 
     for(const auto& test_case : test_cases) {
-        const auto divider = test_case.divider;
+        const auto divisor = test_case.divisor;
         const auto& expected = test_case.expected;
         ASSERT_EQ(test_size, expected.size());
 
-        Num denominator_index {0};
-        for(Num denominator{-width}; denominator<=width; ++denominator, ++denominator_index) {
-            const auto [actual_div, actual_rem] = iround(denominator, divider);
-            const auto [expected_div, expected_rem] = expected.at(denominator_index);
-            ASSERT_EQ(expected_div, actual_div);
+        Num dividend_index {0};
+        for(Num dividend{-width}; dividend<=width; ++dividend, ++dividend_index) {
+            const auto [actual_quo, actual_rem] = iround(dividend, divisor);
+            const auto [expected_quo, expected_rem] = expected.at(dividend_index);
+            ASSERT_EQ(expected_quo, actual_quo);
             ASSERT_EQ(expected_rem, actual_rem);
-            ASSERT_EQ(denominator, expected_div * divider + expected_rem);
-            ASSERT_TRUE((expected_div * denominator * divider) >= 0);
-            ASSERT_TRUE((denominator * actual_rem) >= 0);
+            ASSERT_EQ(dividend, expected_quo * divisor + expected_rem);
+            ASSERT_TRUE((expected_quo * dividend * divisor) >= 0);
+            ASSERT_TRUE((dividend * actual_rem) >= 0);
         }
     }
 }
