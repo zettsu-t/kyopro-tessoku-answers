@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC335:++++xx
+ABC335:++++-x
 ABC334:+++++
 ABC333:+++++x
 ABC332:++++--
@@ -91,13 +91,13 @@ ABC248:  +++
 ABC247:  +++
 ABC246:  +++
 ABC245:  ++-+
-ABC244:  +++
+ABC244: ++++
 ABC243:  ++
 ABC242:  +-+
 ABC241:  +++
 ABC240:  ++++
 ABC239:  +++
-ABC238:  ++-
+ABC238:  ++-x
 ABC237:  ++-
 ABC236:  ++-
 ABC235:  +++
@@ -116,7 +116,7 @@ ABC223:  ++-
 ABC222:   ++
 ABC221: ++++
 ABC220:   +++
-ABC219:   +
+ABC219:+ ++
 ABC218:  +++
 ABC217:  +++
 ABC216:  ++++
@@ -168,7 +168,7 @@ ABC172:  +-
 ABC171:  +++
 ABC170:   ++
 ABC169: + +-
-ABC168:   +
+ABC168:   ++
 ABC167:  +++
 ABC166:   ++
 ABC165:  ++
