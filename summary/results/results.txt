@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC336:+++-x
 ABC335:++++-x
 ABC334:+++++
 ABC333:+++++x
@@ -79,18 +80,18 @@ ABC260: +++
 ABC259: ++++
 ABC258: ++++
 ABC257: ++-+
-ABC256:  +++x
-ABC255:  +++
-ABC254:  +++
-ABC253:  +++
-ABC252:  +++
-ABC251:  +-+
-ABC250:  +++
+ABC256: ++++x
+ABC255: ++++
+ABC254: ++++
+ABC253: ++++
+ABC252: ++++
+ABC251: ++-+
+ABC250: ++++
 ABC249:  ++ +
 ABC248:  +++
-ABC247:  +++
+ABC247: ++++
 ABC246:  +++
-ABC245:  ++-+
+ABC245:+ ++-+
 ABC244: ++++
 ABC243:  ++
 ABC242:  +-+
