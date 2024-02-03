@@ -7,6 +7,7 @@ namespace {
     using Vec [[maybe_unused]] = std::vector<Num>;
     using Set [[maybe_unused]] = std::set<Num>;
     using Mset [[maybe_unused]] = std::multiset<Num>;
+    using Edges [[maybe_unused]] = std::vector<std::vector<Num>>;
 
     template<typename T>
     using Q [[maybe_unused]] = std::queue<T>;
@@ -19,7 +20,7 @@ void solve(std::istream& is, std::ostream& os) {
     Num n {0};
     std::string s;
     is >> n >> s;
-    os << s << n;
+    os << s << n << "\n";
 }
 
 int main(void) {
