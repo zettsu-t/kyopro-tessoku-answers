@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC339:+++++x
+ABC339:+++++-
 ABC338:+++++
 ABC337:+++++
 ABC336:+++--
@@ -111,7 +111,7 @@ ABC232:  +++
 ABC231:  ++ +
 ABC230:  ++-
 ABC229:  +++
-ABC228: +++-
+ABC228:++++-
 ABC227:  ++
 ABC226:  ++-
 ABC225: +++
