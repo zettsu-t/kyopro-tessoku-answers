@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC341:+++++
+ABC341:++++++
 ABC340:+++++-
 ABC339:+++++-
 ABC338:+++++
