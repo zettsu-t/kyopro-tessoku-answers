@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC344:+++++
 ABC343:++++ -
 ABC342:+++++-
 ABC341:++++++
@@ -108,10 +109,10 @@ ABC239: ++++
 ABC238:++++-x
 ABC237:++++-
 ABC236:++++-
-ABC235:  +++
-ABC234:  ++++
+ABC235: ++++
+ABC234: +++++
 ABC233: ++++
-ABC232:  +++
+ABC232: ++++
 ABC231:  ++ +
 ABC230:  ++-
 ABC229:  +++
@@ -287,11 +288,11 @@ ARC118:+
 ARC117:++
 ARC116:++
 ARC115:+++
-ARC114:+
+ARC114:++
 ARC113:+++
 ARC112:++
-ARC110:++
-ARC109:++
+ARC110:+++
+ARC109:+++
 ARC108:++
 ARC107:++
 ARC106:++
