@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC346:++++-
 ABC345:++++
 ABC344:+++++
 ABC343:++++ -
@@ -82,8 +83,8 @@ ABC267:+++++
 ABC266:++++++
 ABC265:+++++
 ABC264:+++++
-ABC263: +++-
-ABC262: +++
+ABC263:++++-
+ABC262:++++
 ABC261: +++++
 ABC260:++++
 ABC259:+++++
@@ -239,8 +240,10 @@ ARC174:++
 ARC172:+
 ARC171:+
 ARC170:+
+ARC169:+
 ARC168:+
 ARC167:+
+ARC166:?+
 ARC165:+
 ARC164:+++
 ARC163:++
@@ -257,14 +260,14 @@ ARC151:+
 ARC150:+
 ARC149:++
 ARC148:++
-ARC147:+
+ARC147:++
 ARC146:+
 ARC145:++
 ARC144:++
 ARC143:+
 ARC142:+-
 ARC141:+
-ARC140:+
+ARC140:++
 ARC139:+
 ARC138:++
 ARC137:++
@@ -273,7 +276,7 @@ ARC135:+
 ARC134:++
 ARC133:+
 ARC132:++
-ARC131:++
+ARC131:++?
 ARC130:+
 ARC129:-+
 ARC128:++
@@ -283,9 +286,9 @@ ARC125:+ -
 ARC124:++
 ARC123:++
 ARC122:++
-ARC121:+
+ARC121:++
 ARC120:++
-ARC119:+x
+ARC119:+?
 ARC118:+-+
 ARC117:++
 ARC116:++
