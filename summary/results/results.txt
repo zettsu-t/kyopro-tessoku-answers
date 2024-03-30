@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC347:+++++
 ABC346:++++-
 ABC345:++++
 ABC344:+++++
@@ -103,7 +104,7 @@ ABC247:+++++
 ABC246:+++++
 ABC245:++++-+
 ABC244:+++++
-ABC243:++++
+ABC243:++++-
 ABC242:+++-+
 ABC241: ++++
 ABC240: +++++
@@ -236,14 +237,16 @@ AISing 2019:  -
 =======CDEF
 ARC100: +
 =======ABCDEF
+ARC175:x+
 ARC174:++
+ARC173:+
 ARC172:+
 ARC171:+
 ARC170:+
 ARC169:+
 ARC168:+
 ARC167:+
-ARC166:?+
+ARC166:x+
 ARC165:+
 ARC164:+++
 ARC163:++
@@ -276,8 +279,8 @@ ARC135:+
 ARC134:++
 ARC133:+
 ARC132:++
-ARC131:++?
-ARC130:+
+ARC131:++x
+ARC130:++
 ARC129:-+
 ARC128:++
 ARC127:+
@@ -288,7 +291,7 @@ ARC123:++
 ARC122:++
 ARC121:++
 ARC120:++
-ARC119:+?
+ARC119:++
 ARC118:+-+
 ARC117:++
 ARC116:++
