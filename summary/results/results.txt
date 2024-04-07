@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC348:+++++
 ABC347:+++++
 ABC346:++++-
 ABC345:++++
@@ -309,17 +310,24 @@ ARC105:+
 ARC104:++
 ARC038: -
 =======ABCDEF
+AGC064:x
+AGC063:+
+AGC062:x
+AGC058:+
 AGC054:+
 AGC052:+
+AGC049: x
+AGC048:+
 AGC046:+
+AGC043:+
 AGC041:+
 AGC040:+
 AGC039:+
-AGC038:?
+AGC038:-
 AGC037:+
 AGC036:+
 AGC035:+
-AGC034:+
+AGC034:+x
 AGC033:+
 AGC032:+
 AGC031:+
