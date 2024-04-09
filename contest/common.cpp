@@ -14,13 +14,36 @@ namespace {
 
     template<typename T>
     using PQ [[maybe_unused]] = std::priority_queue<T, std::vector<T>, std::greater<T>>;
+
+    const std::vector<std::pair<Num, Num>> dyxs {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    template<typename T>
+    void print_oneline(const std::vector<T>& vec, std::ostream& os) {
+        const auto size = vec.size();
+        for(size_t i{0}; i<size; ++i) {
+            os << vec.at(i) << (((i+1) == size) ? '\n' : ' ');
+        }
+    }
+
+    template<typename T>
+    void print_each(const std::vector<T>& vec, std::ostream& os) {
+        const auto size = vec.size();
+        for(size_t i{0}; i<size; ++i) {
+            os << vec.at(i) << '\n';
+        }
+    }
 }
 
 void solve(std::istream& is, std::ostream& os) {
     Num n {0};
     std::string s;
     is >> n >> s;
+
     os << s << n << "\n";
+
+    const Vec v {1,2,3};
+    print_oneline(v, os);
+    print_each(v, os);
 }
 
 int main(void) {
