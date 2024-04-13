@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC349:+++++
 ABC348:+++++
 ABC347:+++++
 ABC346:++++-
@@ -227,6 +228,7 @@ ABC126:  +++
 =======ABCDEF
 ABC120:   +
 ABC119:  +
+ABC118: +
 ABC117: ++
 ABC116:  +
 ABC113:  +
