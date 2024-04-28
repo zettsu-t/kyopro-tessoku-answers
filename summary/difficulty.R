@@ -242,3 +242,4 @@ execute_all_contests <- function(contest_names) {
 # 何度もダウンロードしないように、解析はローカルのファイルを読む
 df_all_contests <- read_task_difficulties(file.path(g_incoming_data_dir, "problem-models.json"))
 results <- execute_all_contests(contest_names = c("ABC", "ARC", "AGC"))
+latest_abc <- results[[1]]$results[[1]]$df_score %>% tail(10)

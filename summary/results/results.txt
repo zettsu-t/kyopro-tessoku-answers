@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC351:++++++
 ABC350:+++++-
 ABC349:+++++
 ABC348:+++++
@@ -98,7 +99,7 @@ ABC256: ++++x
 ABC255: ++++
 ABC254: ++++
 ABC253: ++++
-ABC252: ++++
+ABC252: +++++
 ABC251: ++-+
 ABC250: ++++
 ABC249: +++ +
