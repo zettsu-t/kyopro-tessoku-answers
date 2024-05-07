@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # python3 difficulty.py
 
+import math
 import sys
 import re
 import argparse
@@ -47,6 +48,7 @@ def collect_results(lower_id, upper_id, difficulty_filename, result_filename):
 
     result_table.sort(key=lambda x: x[0])
     wins = [0] * MAX_DIFFICULTY
+    timeouts = [0] * MAX_DIFFICULTY
     losses = [0] * MAX_DIFFICULTY
 
     result_lines = ""
@@ -70,26 +72,43 @@ def collect_results(lower_id, upper_id, difficulty_filename, result_filename):
                 pass
             elif mark == "+":
                 wins[difficulty] = wins[difficulty] + 1
-                result_str = str(difficulty) + result[index]
+                result_str = str(difficulty) + mark
+            elif mark == ".":
+                timeouts[difficulty] = timeouts[difficulty] + 1
+                result_str = str(difficulty) + mark
             elif mark != " ":
                 losses[difficulty] = losses[difficulty] + 1
-                result_str = str(difficulty) + result[index]
+                result_str = str(difficulty) + mark
             line += " " + result_str
         result_lines += key + ":" + line + "\n"
 
     n_wins = 0
+    n_timeouts = 0
     n_losses = 0
-    summary_lines = "difficulty: win+loss=total\n"
-    for [g, [w, l]] in enumerate(zip(wins, losses)):
-        if g < 1 or (w + l) <= 0:
-            continue
-        s = str(g) + colors[g] + ": " + str(w) + "+" + str(l) + "=" + str(w + l)
-        n_wins = n_wins + w
-        n_losses = n_losses + l
-        summary_lines = summary_lines + s + "\n"
+    def num_width(x):
+        if x <= 0:
+            return 1
+        return int(math.log10(x)) + 1
 
-    s = "total: " + str(n_wins) + "+" + str(n_losses) + "=" + str(n_wins + n_losses) + "\n"
-    summary_lines = summary_lines + s
+    for [g, [w, t, l]] in enumerate(zip(wins, timeouts, losses)):
+        n_wins = n_wins + w
+        n_timeouts = n_timeouts + t
+        n_losses = n_losses + l
+
+    width = max([num_width(x) for x in [n_wins, n_timeouts, n_losses]])
+    summary_lines = "difficulty: solved + timeout + loss = total\n"
+
+    for [g, [w, t, l]] in enumerate(zip(wins, timeouts, losses)):
+        n = w + t + l
+        if g < 1 or n <= 0:
+            continue
+        color = colors[g]
+        line = f"{g}{color}: {w:{width}} + {t:{width}} + {l:{width}} = {n}"
+        summary_lines = summary_lines + line + "\n"
+
+    n_total = n_wins + n_timeouts + n_losses
+    line = f"total: {n_wins} + {n_timeouts} + {n_losses} = {n_total}\n"
+    summary_lines = summary_lines + line
     return (result_lines, summary_lines)
 
 def parse_command_line():
