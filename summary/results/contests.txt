@@ -1,7 +1,8 @@
 [Results in contests]
-# python3 difficulty.py --result_filename results/contest_limited.txt --contests abc
+# python3 difficulty.py --result_filename results/contests.txt --contests abc
 
 =======ABCDEFGH
+ABC353:++++.
 ABC352:++++-x
 ABC351:++++..
 ABC350:+++++-
