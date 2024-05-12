@@ -130,7 +130,7 @@ merge_score <- function(df_tasks, df_results) {
 }
 
 ## 解けたかどうかを散布図にする
-draw_scatter_plot <- function(df_score, contest_name) {
+draw_scatter_plot <- function(df_score, contest_name, figure_title) {
   id_minmax <- range(df_score$id)
   id_center <- (id_minmax[2] + id_minmax[1]) / 2.0
   id_tick <- 1.4 / (id_minmax[2] - id_minmax[1])
@@ -142,7 +142,7 @@ draw_scatter_plot <- function(df_score, contest_name) {
   rating_max <- rating_range * seq_len(NROW(rating_colors))
   df_grade <- tibble(start = rating_min, end = rating_max, color = factor(seq_len(NROW(rating_colors))))
 
-  title <- paste0(contest_name, "を時間無制限で解けたかどうか")
+  title <- paste0(contest_name, figure_title)
   g <- ggplot()
   g <- g + geom_rect(data = df_grade, aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf, fill = color), fill = rating_colors)
   g <- g + geom_point(data = df_drawn, aes(x = x, y = y), shape = 17, size = 3, color = "gray80")
@@ -162,7 +162,7 @@ draw_scatter_plot <- function(df_score, contest_name) {
 }
 
 ## Ratingごとの正解率をヒストグラムにする
-draw_histogram <- function(df_score, contest_name) {
+draw_histogram <- function(df_score, contest_name, figure_title) {
   labels <- c("解けた", "解けなかった")
   df_drawn <- df_score %>%
     dplyr::mutate(color = factor(labels[(3 - score) / 2])) %>%
@@ -190,7 +190,7 @@ draw_histogram <- function(df_score, contest_name) {
 }
 
 ## コンテストを限定して結果を集計する
-execute_all <- function(result_filename, df_contests, contest_name, out_dirname) {
+execute_all <- function(result_filename, df_contests, contest_name, figure_title, filename_prefix, out_dirname) {
   inner_name <- stringr::str_to_lower(contest_name)
   png_suffix <- paste0("_", inner_name, ".png")
 
@@ -201,10 +201,10 @@ execute_all <- function(result_filename, df_contests, contest_name, out_dirname)
   df_results <- read_results(result_filename, contest_name = contest_name)
   df_score <- merge_score(df_tasks = df_target, df_results = df_results)
 
-  g_scatter <- draw_scatter_plot(df_score = df_score, contest_name = contest_name)
-  ggsave(paste0("images/score", png_suffix), plot = g_scatter, width = 6, height = 4)
-  g_histogram <- draw_histogram(df_score = df_score, contest_name = contest_name)
-  ggsave(paste0("images/hist", png_suffix), plot = g_histogram, width = 6, height = 4)
+  g_scatter <- draw_scatter_plot(df_score = df_score, contest_name = contest_name, figure_title = figure_title)
+  ggsave(paste0("images/", filename_prefix, "score", png_suffix), plot = g_scatter, width = 6, height = 4)
+  g_histogram <- draw_histogram(df_score = df_score, contest_name = contest_name, figure_title = figure_title)
+  ggsave(paste0("images/", filename_prefix, "hist", png_suffix), plot = g_histogram, width = 6, height = 4)
 
   list(
     df_target = df_target, df_results = df_results, df_score = df_score,
@@ -217,6 +217,33 @@ execute_all_contests <- function(contest_names) {
     result <- execute_all(
       result_filename = "results/results.txt",
       df_contests = df_all_contests, contest_name = name,
+      figure_title = "を時間無制限で解けたかどうか",
+      filename_prefix = "tasks_",
+      out_dirname = g_incoming_data_dir
+    )
+
+    if (is.null(acc)) {
+      list(results = list(result), df_all = result$df_score, all_names = name)
+    } else {
+      all_names <- paste0(acc$all_names, "/", name)
+      list(results = append(acc$results, list(result)),
+           df_all = dplyr::bind_rows(acc$df_all, result$df_score),
+           all_names = all_names)
+    }
+  })
+
+  g_all <- draw_histogram(df_score = result_all$df_all, contest_name = result_all$all_names)
+  ggsave("images/hist_all.png", plot = g_all, width = 6, height = 4)
+  list(result_all)
+}
+
+execute_rated_contests <- function(contest_names) {
+  result_all <- purrr::reduce(.x = contest_names, .init = NULL, .f = function(acc, name) {
+    result <- execute_all(
+      result_filename = "results/contests.txt",
+      df_contests = df_all_contests, contest_name = name,
+      figure_title = "をコンテスト中に解けたかどうか",
+      filename_prefix = "rated_",
       out_dirname = g_incoming_data_dir
     )
 
@@ -242,4 +269,5 @@ execute_all_contests <- function(contest_names) {
 # 何度もダウンロードしないように、解析はローカルのファイルを読む
 df_all_contests <- read_task_difficulties(file.path(g_incoming_data_dir, "problem-models.json"))
 results <- execute_all_contests(contest_names = c("ABC", "ARC", "AGC"))
+results <- execute_rated_contests(contest_names = c("ABC"))
 latest_abc <- results[[1]]$results[[1]]$df_score %>% tail(10)
