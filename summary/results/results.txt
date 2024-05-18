@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC354:+++++x
 ABC353:+++++
 ABC352:++++-x
 ABC351:++++++
@@ -78,7 +79,7 @@ ABC279:++++++
 ABC278:++++++
 ABC277:++++-
 ABC276:++++++
-ABC275:+++++
+ABC275:+++++x
 ABC274:++++-
 ABC273:++++
 ABC272:+++++
