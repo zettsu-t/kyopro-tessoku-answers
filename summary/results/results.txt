@@ -1,7 +1,8 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC354:+++++x
+ABC355:++++x
+ABC354:+++++-
 ABC353:+++++
 ABC352:++++-x
 ABC351:++++++
@@ -44,7 +45,7 @@ ABC314:++++-+
 ABC313:+++-+
 ABC312:++++ +
 ABC311:++++-
-ABC310:+++-+
+ABC310:+++-+-
 ABC309:+++++
 ABC308:++++++
 ABC307:+++++
@@ -245,6 +246,7 @@ AISing 2019:  -
 =======CDEF
 ARC100: +
 =======ABCDEF
+ARC178:+
 ARC177:+++
 ARC175:-+
 ARC174:++
@@ -316,7 +318,9 @@ ARC107:++
 ARC106:++
 ARC105:+
 ARC104:++
+ARC048: +
 ARC038: -
+ARC005:  +
 =======ABCDEF
 AGC064:-
 AGC063:+
