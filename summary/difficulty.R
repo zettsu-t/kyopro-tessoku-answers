@@ -93,6 +93,8 @@ read_results <- function(path, contest_name) {
         score <- NA
         if (result == "+") {
           score <- 1
+        } else if (result == ".") {
+          score <- 0
         } else if (result != " ") {
           score <- -1
         }
@@ -123,7 +125,6 @@ merge_score <- function(df_tasks, df_results) {
 
   dplyr::inner_join(df_left, df_right) %>%
     dplyr::filter(!is.na(score)) %>%
-    dplyr::filter(abs(score) == 1) %>%
     dplyr::mutate(difficulty = pmax(0, difficulty)) %>%
     dplyr::arrange(name, id, task) %>%
     dplyr::mutate(rank = 1 + pmax(0, difficulty %/% 400), .after = difficulty)
@@ -131,11 +132,29 @@ merge_score <- function(df_tasks, df_results) {
 
 ## 解けたかどうかを散布図にする
 draw_scatter_plot <- function(df_score, contest_name, figure_title) {
+  n_scores <- NROW(unique(df_score$score))
+  if (n_scores <= 2) {
+    labels <- c("解けなかった", "解けた")
+    breaks <- c(-1, 1)
+  } else if (n_scores == 3) {
+    labels <- c("解けなかった", "間に合わなかった", "解けた")
+    breaks <- c(-1, 0, 1)
+  } else {
+    stop("Too much levels")
+  }
+
   id_minmax <- range(df_score$id)
   id_center <- (id_minmax[2] + id_minmax[1]) / 2.0
-  id_tick <- 1.4 / (id_minmax[2] - id_minmax[1])
-  df_drawn <- df_score %>%
-    dplyr::mutate(x = difficulty, y = score + (id - id_center) * id_tick)
+
+  if (n_scores <= 2) {
+    id_tick <- 1.4 / (id_minmax[2] - id_minmax[1])
+    df_drawn <- df_score %>%
+      dplyr::mutate(x = difficulty, y = score + (id - id_center) * id_tick)
+  } else {
+    id_tick <- 0.7 / (id_minmax[2] - id_minmax[1])
+    df_drawn <- df_score %>%
+      dplyr::mutate(x = difficulty, y = score + (id - id_center) * id_tick)
+  }
 
   rating_range <- 400
   rating_min <- rating_range * (seq_len(NROW(rating_colors)) - 1)
@@ -146,8 +165,13 @@ draw_scatter_plot <- function(df_score, contest_name, figure_title) {
   g <- ggplot()
   g <- g + geom_rect(data = df_grade, aes(xmin = start, xmax = end, ymin = -Inf, ymax = Inf, fill = color), fill = rating_colors)
   g <- g + geom_point(data = df_drawn, aes(x = x, y = y), shape = 17, size = 3, color = "gray80")
-  g <- g + scale_y_continuous(breaks = c(-1, 1), labels = c("解けなかった", "解けた"))
-  g <- g + geom_hline(yintercept = 0)
+  g <- g + scale_y_continuous(breaks = breaks, labels = labels)
+  if (n_scores <= 2) {
+    g <- g + geom_hline(yintercept = 0)
+  } else if (n_scores == 3) {
+    g <- g + geom_hline(yintercept = 0.5)
+    g <- g + geom_hline(yintercept = -0.5)
+  }
   g <- g + labs(title = title, x = "Difficulty", y = "解けたかどうか")
   g <- g + theme_bw()
   g <- g + theme(
@@ -163,18 +187,36 @@ draw_scatter_plot <- function(df_score, contest_name, figure_title) {
 
 ## Ratingごとの正解率をヒストグラムにする
 draw_histogram <- function(df_score, contest_name, figure_title) {
-  labels <- c("解けた", "解けなかった")
-  df_drawn <- df_score %>%
-    dplyr::mutate(color = factor(labels[(3 - score) / 2])) %>%
+  n_scores <- NROW(unique(df_score$score))
+
+  labels <- NULL
+  df_drawn <- NULL
+  if (n_scores <= 2) {
+    labels <- c("解けた", "解けなかった")
+    colors <- c("royalblue", "gray80")
+    scores <- df_score$score
+    df_drawn <- df_score %>%
+      dplyr::mutate(color = factor(labels[(3 - scores) / 2]))
+  } else if (n_scores == 3) {
+    labels <- c("解けた", "間に合わなかった", "解けなかった")
+    colors <- c("royalblue", "azure", "gray80")
+    scores <- df_score$score
+    df_drawn <- df_score %>%
+      dplyr::mutate(color = factor(labels[2 - scores]))
+  } else {
+    stop("Too much levels")
+  }
+
+  df_drawn <- df_drawn %>%
     dplyr::mutate(color = forcats::fct_relevel(color, labels)) %>%
     dplyr::select(c("rank", "color"))
 
-  title <- paste0(contest_name, "を時間無制限で解けたかどうか")
+  title <- paste0(contest_name, figure_title)
   g <- ggplot()
   g <- g + geom_bar(data = df_drawn, aes(x = rank, fill = color), color = "black")
-  g <- g + scale_fill_manual(values = c("royalblue", "gray80"))
+  g <- g + scale_fill_manual(values = colors)
   g <- g + scale_x_continuous(breaks = seq_len(NROW(rating_chars)), labels = rating_chars)
-  g <- g + labs(title = title, x = "Rating", y = "問題数")
+  g <- g + labs(title = title, x = "Difficulty", y = "問題数")
   g <- g + theme_bw()
   g <- g + theme(
     text = element_text(family = g_font_name),
@@ -213,11 +255,13 @@ execute_all <- function(result_filename, df_contests, contest_name, figure_title
 }
 
 execute_all_contests <- function(contest_names) {
+  figure_title <- "を時間無制限で解けたかどうか"
+
   result_all <- purrr::reduce(.x = contest_names, .init = NULL, .f = function(acc, name) {
     result <- execute_all(
       result_filename = "results/results.txt",
       df_contests = df_all_contests, contest_name = name,
-      figure_title = "を時間無制限で解けたかどうか",
+      figure_title = figure_title,
       filename_prefix = "tasks_",
       out_dirname = g_incoming_data_dir
     )
@@ -232,17 +276,18 @@ execute_all_contests <- function(contest_names) {
     }
   })
 
-  g_all <- draw_histogram(df_score = result_all$df_all, contest_name = result_all$all_names)
+  g_all <- draw_histogram(df_score = result_all$df_all, contest_name = result_all$all_names, figure_title = figure_title)
   ggsave("images/hist_all.png", plot = g_all, width = 6, height = 4)
   list(result_all)
 }
 
 execute_rated_contests <- function(contest_names) {
+  figure_title <- "をコンテスト中に解けたかどうか"
   result_all <- purrr::reduce(.x = contest_names, .init = NULL, .f = function(acc, name) {
     result <- execute_all(
       result_filename = "results/contests.txt",
       df_contests = df_all_contests, contest_name = name,
-      figure_title = "をコンテスト中に解けたかどうか",
+      figure_title = figure_title,
       filename_prefix = "rated_",
       out_dirname = g_incoming_data_dir
     )
@@ -257,7 +302,7 @@ execute_rated_contests <- function(contest_names) {
     }
   })
 
-  g_all <- draw_histogram(df_score = result_all$df_all, contest_name = result_all$all_names)
+  g_all <- draw_histogram(df_score = result_all$df_all, contest_name = result_all$all_names, figure_title = figure_title)
   ggsave("images/hist_all.png", plot = g_all, width = 6, height = 4)
   list(result_all)
 }
