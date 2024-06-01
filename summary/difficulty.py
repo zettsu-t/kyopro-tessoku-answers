@@ -7,8 +7,8 @@ import re
 import argparse
 
 MAX_N_TASKS = 8
-MAX_DIFFICULTY = 9
-colors = ["?", "灰", "茶", "緑", "水", "青", "黄", "橙", "赤", "赤<"]
+MAX_DIFFICULTY = 10
+colors = ["?", "灰", "茶", "緑", "水", "青", "黄", "橙", "赤", "!?"]
 
 # 1行1コンテストに対応する。
 # コンテスト名(もしあれば)三桁のID, ':', A..H問題の結果または難易度

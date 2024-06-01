@@ -3,11 +3,14 @@ library(jsonlite)
 library(tidyverse)
 
 g_font_name <- "Migu 1M"
-rating_chars <- c("灰", "茶", "緑", "水", "青", "黄", "橙", "赤")
+rating_chars <- c("灰", "茶", "緑", "水", "青", "黄", "橙", "赤", "赤<")
 rating_colors <- c(
   "#808080", "#804000", "#008000", "#00C0C0",
-  "#0000FF", "#C0C000", "#FF8000", "#FF0000"
+  "#0000FF", "#C0C000", "#FF8000", "#FF0000", "#e0e0e0"
 )
+max_difficulty_ranks <- NROW(rating_chars)
+stopifnot(NROW(rating_chars) == NROW(rating_chars))
+
 g_incoming_data_dir <- "incoming_data"
 
 ## 問題を読み込む
@@ -127,7 +130,8 @@ merge_score <- function(df_tasks, df_results) {
     dplyr::filter(!is.na(score)) %>%
     dplyr::mutate(difficulty = pmax(0, difficulty)) %>%
     dplyr::arrange(name, id, task) %>%
-    dplyr::mutate(rank = 1 + pmax(0, difficulty %/% 400), .after = difficulty)
+    dplyr::mutate(rank = 1 + pmax(0, difficulty %/% 400), .after = difficulty) %>%
+    dplyr::mutate(rank = pmin(rank, max_difficulty_ranks))
 }
 
 ## 解けたかどうかを散布図にする
