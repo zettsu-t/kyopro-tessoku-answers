@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC357:+++++
 ABC356:++++-
 ABC355:++++--
 ABC354:+++++-
@@ -30,7 +31,7 @@ ABC331:+++++-
 ABC330:+++++
 ABC329:++++-+
 ABC328:+++++-
-ABC327:+++++
+ABC327:++++++
 ABC326:+++++
 ABC325:+++++x
 ABC324:+++++-
@@ -249,6 +250,7 @@ AISing 2019:  -
 =======CDEF
 ARC100: +
 =======ABCDEF
+ARC179:+
 ARC178:+
 ARC177:+++
 ARC175:-+
