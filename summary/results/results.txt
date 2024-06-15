@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC358:+++++
 ABC357:+++++
 ABC356:++++-
 ABC355:++++--
@@ -87,7 +88,7 @@ ABC274:++++-
 ABC273:++++
 ABC272:+++++
 ABC271:++++--
-ABC270:+++++
+ABC270:++++++
 ABC269:++++-
 ABC268:++++ -
 ABC267:+++++
