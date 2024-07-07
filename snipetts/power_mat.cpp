@@ -74,6 +74,30 @@ namespace {
 // https://atcoder.jp/contests/abc293/tasks/abc293_e
 class TestMatrixPowered : public ::testing::Test {};
 
+TEST_F(TestMatrixPowered, Elements) {
+    using Num = int32_t;
+    using Mat = Matrix<Num, 2>;
+    const std::vector<Num> mods {2, 3, 256};
+    for(const auto& mod : mods) {
+        Mat base = Mat(0, mod);
+        base.elements_.at(0).at(0) = 1;
+        base.elements_.at(0).at(1) = 2;
+        base.elements_.at(1).at(0) = 3;
+        base.elements_.at(1).at(1) = 4;
+
+        MatrixPowered<Mat> mat_powered(base);
+        const auto powered = mat_powered.power(2);
+        const Num expected00 = 7 % mod;
+        const Num expected01 = 10 % mod;
+        const Num expected10 = 15 % mod;
+        const Num expected11 = 22 % mod;
+        EXPECT_EQ(expected00, powered.get(0, 0));
+        EXPECT_EQ(expected01, powered.get(0, 1));
+        EXPECT_EQ(expected10, powered.get(1, 0));
+        EXPECT_EQ(expected11, powered.get(1, 1));
+    }
+}
+
 TEST_F(TestMatrixPowered, Case1) {
     using Num = int16_t;
     using Mat = Matrix<Num, 2>;
