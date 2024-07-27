@@ -1,7 +1,8 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC363:+++++ x
+ABC364:+++++
+ABC363:+++++-
 ABC362:+++++ -
 ABC361:++++++
 ABC360:++++-
@@ -54,7 +55,7 @@ ABC313:+++-+
 ABC312:++++x+
 ABC311:++++-
 ABC310:+++-+-
-ABC309:+++++?
+ABC309:+++++-
 ABC308:++++++
 ABC307:+++++
 ABC306:++++++
@@ -260,18 +261,18 @@ ARC180:+
 ARC179:+
 ARC178:+
 ARC177:+++
-ARC176: +
+ARC176:?+
 ARC175:-+
 ARC174:++
 ARC173:+
 ARC172:++
-ARC171:+
+ARC171:++
 ARC170:+
-ARC169:+
+ARC169:++
 ARC168:+-
 ARC167:++
 ARC166:-+
-ARC165:+
+ARC165:++
 ARC164:+++
 ARC163:++
 ARC162:+-

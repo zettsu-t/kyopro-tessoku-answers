@@ -16,6 +16,7 @@ namespace {
     using PQ [[maybe_unused]] = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 
     const std::vector<std::pair<Num, Num>> dyxs {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    std::map<char, std::pair<Num, Num>> directions {{'D', {1, 0}}, {'U', {-1, 0}}, {'R', {0, 1}}, {'L', {0, -1}}};
 
     template<typename T>
     void print_oneline(const std::vector<T>& vec, std::ostream& os) {
