@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC366:+++++
+ABC366:+++++-
 ABC365:+++++
 ABC364:+++++
 ABC363:+++++-
@@ -255,20 +255,22 @@ ABC098:   +
 ABC065:   +
 ABC074:   +
 ABC060: +
+CodeQueen2024:++++x
 AISing 2019:  -
 =======CDEF
 ARC100: +
 =======ABCDEF
+ARC182:-+
 ARC181:+
 ARC180:+
-ARC179:+
-ARC178:+
+ARC179:++
+ARC178:++
 ARC177:+++
 ARC176:-+
 ARC175:-+
 ARC174:++
 ARC173:+
-ARC172:++
+ARC172:++-
 ARC171:++
 ARC170:+
 ARC169:++
@@ -281,16 +283,17 @@ ARC163:++
 ARC162:+-
 ARC161:++ +
 ARC160:++
-ARC159:+
-ARC158:+
+ARC159:++
+ARC158:+-
 ARC157:+
-ARC156:+
+ARC156:++
+ARC155:+
 ARC154:++
 ARC153:++
 ARC152:+
 ARC151:++
-ARC150:+
-ARC149:++
+ARC150:++
+ARC149:+++
 ARC148:+++
 ARC147:++
 ARC146:++
@@ -304,15 +307,15 @@ ARC139:+
 ARC138:++
 ARC137:++
 ARC136:+-
-ARC135:++
-ARC134:++
-ARC133:++
+ARC135:++?
+ARC134:+++
+ARC133:+++
 ARC132:++
 ARC131:++-
 ARC130:++
 ARC129:-+
 ARC128:++
-ARC127:+
+ARC127:+?
 ARC126:++
 ARC125:++-
 ARC124:++-
