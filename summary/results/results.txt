@@ -1,7 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
-ABC368:++++ +x
+ABC368:++++ +-
 ABC367:++++++
 ABC366:+++++-
 ABC365:+++++
@@ -262,6 +262,7 @@ AISing 2019:  -
 =======CDEF
 ARC100: +
 =======ABCDEF
+ARC183:+
 ARC182:-+
 ARC181:+
 ARC180:+
