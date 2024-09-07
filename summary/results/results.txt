@@ -1,6 +1,7 @@
 [Results (unlimited time to solve)]
 
 =======ABCDEFGH
+ABC370:+++++x
 ABC369:+++++-
 ABC368:++++ +-
 ABC367:++++++
@@ -350,8 +351,12 @@ ARC005:  +
 AGC064:-
 AGC063:+
 AGC062:-
+AGC060:-
 AGC058:+
+AGC056:+
+AGC055:-
 AGC054:+
+AGC053:+
 AGC052:+
 AGC049: -
 AGC048:+
@@ -379,7 +384,7 @@ AGC023:+
 AGC022:+
 AGC021:+
 AGC020:+
-AGC019:+
+AGC019:+-
 AGC018:+
 AGC017:+
 AGC016:+
