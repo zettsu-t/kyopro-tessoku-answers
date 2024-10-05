@@ -2,6 +2,7 @@
 # python3 difficulty.py --result_filename results/contests.txt --contests abc
 
 =======ABCDEFGH
+ABC374:++++.??
 ABC373:++++-??
 ABC372:+++++.?
 ABC371:+++++?x
