@@ -2,6 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
+ABC375:++++++
 ABC374:+++++
 ABC373:++++-
 ABC372:++++++
@@ -227,16 +228,16 @@ ABC153:   +--
 ABC152:   ++
 ABC151:  +++
 ABC150:  +-
-ABC149:   +
+ABC149:   +?
 ABC148:   ++-
-ABC147:  ++
-ABC146:  ++ +
+ABC147:  +++
+ABC146:  ++++
 ABC145:   +-
 ABC144:   ++
-ABC143:   +
-ABC142:   ++
+ABC143:   ++
+ABC142:   +++
 ABC141:   ++
-ABC140:   -
+ABC140:   --
 ABC139:   ++
 ABC138:   ++
 ABC137:  +--
