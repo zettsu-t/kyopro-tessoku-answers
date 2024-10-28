@@ -2,6 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
+ABC377:++++-
 ABC376:+++++
 ABC375:++++++
 ABC374:+++++
@@ -313,7 +314,7 @@ ARC148:+++
 ARC147:++
 ARC146:++
 ARC145:++
-ARC144:++
+ARC144:++-
 ARC143:++
 ARC142:+-+
 ARC141:++
@@ -325,10 +326,10 @@ ARC136:+-
 ARC135:++-
 ARC134:+++
 ARC133:+++
-ARC132:++
+ARC132:++?
 ARC131:++-
 ARC130:++
-ARC129:-+
+ARC129:-+-
 ARC128:++
 ARC127:++
 ARC126:++
@@ -354,6 +355,35 @@ ARC107:+++
 ARC106:+++
 ARC105:+
 ARC104:++
+ARC102:  +
+ARC101:  +
+ARC100:  +
+ARC099:  +
+ARC098:  +
+ARC097:  +
+ARC096:  +
+ARC095:  +
+ARC094:  +
+ARC093:  +
+ARC091:  +
+ARC090:  +
+ARC089:  +
+ARC088:  +
+ARC087:  +
+ARC086:  +
+ARC085:  +
+ARC082:  +
+ARC081:  +
+ARC080:  +
+ARC079:  +
+ARC078:  +
+ARC077:  +
+ARC076:  +
+ARC075:  +
+ARC073:  +
+ARC071:  +
+ARC070:  +
+ARC069:  +
 ARC048: +
 ARC038: -
 ARC005:  +
