@@ -256,7 +256,7 @@ ABC131:  ++--
 ABC130:  +++
 ABC129:  ++-
 ABC128:  +++
-ABC127:   +-
+ABC127:  ++-
 ABC126:  ++++
 =======ABCDEF
 ABC120:   +
@@ -275,6 +275,7 @@ ABC037:   +
 CodeQueen2024:++++x
 AISing 2019:  -
 =======ABCDEF
+ARC188: +
 ARC187:+
 ARC185:++x x
 ARC184:+
@@ -396,7 +397,7 @@ ARC069:+ +
 ARC068:++
 ARC065: +
 ARC064:+++
-ARC063:  ?
+ARC063:  +
 ARC062:++
 ARC061:++
 ARC060:+++
