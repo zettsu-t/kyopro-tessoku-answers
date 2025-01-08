@@ -2,7 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
-ABC387:++++ x
+ABC387:+++++x
 ABC386:++++-x
 ABC385:+++++x
 ABC384:+++++-
@@ -284,6 +284,7 @@ AISing 2019:  -
 ARC189:++ -
 ARC188:-+
 ARC187:+
+ARC186: ?
 ARC185:++x x
 ARC184:+
 ARC183:+
@@ -470,7 +471,7 @@ AGC008:++++
 AGC007:+-
 AGC006:++
 AGC005:+++
-AGC004:++?
+AGC004:+++?
 AGC003:+++
 AGC002:+++-
 =====ABCDEFGHIJKLMNOPQRSTUVWXYZ
