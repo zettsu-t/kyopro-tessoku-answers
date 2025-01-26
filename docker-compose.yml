@@ -4,4 +4,4 @@ services:
     build: .
     image: kyopro-tessoku-answers
     volumes:
-      - ./answers:/home/work
+      - .:/home/work
