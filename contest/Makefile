@@ -4,7 +4,7 @@ STDCPP_GCH=stdc++.h.gch
 
 CXX=g++
 LD=g++
-CPPFLAGS=-std=gnu++20 -Wall -Wextra -Wconversion -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wno-unused-parameter -Wbool-operation -Wshadow -O0 -g -I . -DNDEBUG
+CPPFLAGS=-std=gnu++20 -Wall -Wextra -Wconversion -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wno-unused-parameter -Wbool-operation -Wshadow -fno-omit-frame-pointer -DNDEBUG -D_GLIBCXX_ASSERTIONS -O0 -g -I .
 # CPPFLAGS=-std=gnu++17 -Wall -Wextra -O2 -I . -DNDEBUG
 LIBPATH=
 LDFLAGS=
@@ -20,7 +20,7 @@ $(TARGETS) : % : %.cpp
 	@echo "Ready"
 
 precompile: Makefile
-	$(CXX) $(CPPFLAGS) /usr/lib/gcc/x86_64-pc-cygwin/11/include/c++/x86_64-pc-cygwin/bits/stdc++.h
+	$(CXX) $(CPPFLAGS) /usr/include/x86_64-linux-gnu/c++/11/bits/stdc++.h
 
 run : $(TARGETS)
 	./$(TARGETS)
