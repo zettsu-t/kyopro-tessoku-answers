@@ -2,6 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
+ABC400:+++++
 ABC399:++++
 ABC398:++++++
 ABC397:++++-+
@@ -194,17 +195,17 @@ ABC211:  +++
 ABC210:   --
 ABC209:   +
 ABC208:   +
-ABC207:   -?
+ABC207:   -x
 ABC206:   +-
 ABC205:   +
 ABC204:  ++-
 ABC203:   -+
 ABC202:   ++
 ABC201:  ++-
-ABC200:   -
-ABC199:  +-
+ABC200:   -?
+ABC199:  +-+
 ABC198:  +++
-ABC197:  +++
+ABC197:  +++x
 ABC196:   ++
 ABC195: + -+
 ABC194:   ++
@@ -213,7 +214,7 @@ ABC192:   -++
 ABC191:  +-+
 ABC190:  ++-+
 ABC189:  +++
-ABC188:   ++
+ABC188:   +++
 ABC187:   ++
 ABC186:   +-+
 ABC185:   +++
@@ -284,6 +285,7 @@ ABC117: ++-
 ABC116:  +
 ABC113:  +
 ABC103:  +
+ABC100:   +
 ABC106:   +
 ABC098:   +
 ABC065:   +
