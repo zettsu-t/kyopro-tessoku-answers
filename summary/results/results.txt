@@ -2,7 +2,8 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
-ABC406:++++ +
+ABC407:++++ +
+ABC406:++++x+
 ABC405:+++++-
 ABC404:++++-
 ABC403:++++++
