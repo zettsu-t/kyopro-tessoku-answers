@@ -2,7 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
-ABC407:++++ +
+ABC407:++++-+
 ABC406:++++x+
 ABC405:+++++-
 ABC404:++++-
@@ -302,6 +302,7 @@ ABC037:   +
 CodeQueen2024:++++x
 AISing 2019:  -
 =======ABCDEF
+ARC198:++
 ARC197:+++x
 ARC196:-
 ARC195:+--
