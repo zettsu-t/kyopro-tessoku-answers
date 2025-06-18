@@ -305,7 +305,7 @@ ABC037:   +
 CodeQueen2024:++++x
 AISing 2019:  -
 =======ABCDEF
-ARC200:x+
+ARC200:-+
 ARC198:++
 ARC197:+++x
 ARC196:-
