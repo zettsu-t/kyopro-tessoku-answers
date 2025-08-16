@@ -2,6 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
+ABC419:++++
 ABC418:+++++
 ABC417:+++-++
 ABC416:++++-
@@ -383,7 +384,7 @@ ARC136:+-
 ARC135:++-
 ARC134:+++
 ARC133:+++
-ARC132:++?
+ARC132:+++
 ARC131:++-
 ARC130:++
 ARC129:-+-
@@ -410,7 +411,7 @@ ARC109:+++
 ARC108:++-
 ARC107:+++
 ARC106:+++
-ARC105:+
+ARC105:++ +
 ARC104:++x
 =======CDEF
 ARC103:  +
