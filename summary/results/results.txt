@@ -2,7 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
-ABC424:+++ +
+ABC424:+++ ++
 ABC423:++++-x
 ABC422:+++++
 ABC421:++++ +
