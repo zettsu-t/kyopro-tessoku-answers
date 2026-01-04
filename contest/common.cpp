@@ -1,8 +1,17 @@
 #include <bits/stdc++.h>
-#include <atcoder/modint>
+
+// #define EXTRA_LIBS 1
+#ifdef EXTRA_LIBS
+#include <atcoder/all>
+#include <boost/multiprecision/cpp_int.hpp>
+#endif
 
 namespace {
+#ifdef EXTRA_LIBS
     using ModInt [[maybe_unused]] = atcoder::modint998244353;
+    using BigInt = boost::multiprecision::cpp_int;
+    using BigIntVec = std::vector<BigInt>;
+#endif
     using Num [[maybe_unused]] = long long int;
     using Vec [[maybe_unused]] = std::vector<Num>;
     using Set [[maybe_unused]] = std::set<Num>;
