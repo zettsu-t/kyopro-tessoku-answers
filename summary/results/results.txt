@@ -2,7 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
-ABC440:+++++
+ABC440:+++++x
 ABC439:+++++x
 ABC438:+++++
 ABC437:++++++
@@ -338,6 +338,7 @@ CodeQueen2025:+++++xxx
 AISing 2019:  -
 Procon 2019:   +
 =======ABCDEF
+ARC212:++
 ARC211:+++
 ARC210:-+
 ARC209:x?
@@ -557,8 +558,9 @@ AGC002:+++-
 EDPC:+++++--++++++++++++-++xxxx
 ===========ABCDEF
 JOIsnd2022:+++
+JOIsem2022:+
 JOIsnd2023:+++
 JOIsem2023:++
-JOIsnd2024:++//
+JOIsnd2024:++x/
 JOIsem2024:++//
 JOIsnd2025:+++/+/
