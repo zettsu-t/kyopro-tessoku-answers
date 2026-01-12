@@ -1,7 +1,6 @@
 library(igraph)
 
 in_filename <- "graph.txt"
-out_filename <- "graph.png"
 
 n_cols <- NCOL(readr::read_delim(in_filename, delim = " "))
 print(n_cols)
@@ -20,11 +19,18 @@ E(g)$label <- if (n_cols >= 3) {
   "_"
 }
 
-plot_impl <- function() {
-  plot(g, layout=layout.circle, vertex.color="azure", vertex.label.color="black", vertex.label.cex=2, edge.label.color="darkorchid", edge.label.cex=1.3)
+plot_impl <- function(in_layout, out_filename) {
+  plot(g, layout=in_layout, vertex.color="azure", vertex.label.color="black", vertex.label.cex=2, edge.label.color="darkorchid", edge.label.cex=1.3)
 }
 
-plot_impl()
-png(out_filename, width=800, height=800)
-plot_impl()
-dev.off()
+plot_all <- function(in_layout, out_filename) {
+  png(out_filename, width=800, height=800)
+  plot_impl(in_layout=in_layout, out_filename=out_filename)
+  dev.off()
+  plot_impl(in_layout=in_layout, out_filename=out_filename)
+}
+
+plot_all(in_layout=igraph::layout_nicely, out_filename="graph.png")
+plot_all(in_layout=igraph::layout_in_circle, out_filename="graph_circle.png")
+tree_layout <- igraph::layout_as_tree(g, root=1)
+plot_all(in_layout=tree_layout, out_filename="graph_tree.png")
