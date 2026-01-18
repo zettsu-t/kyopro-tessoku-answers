@@ -2,6 +2,7 @@
 cat results.txt | tr -cd '+' | wc -c
 
 =======ABCDEFGH
+ABC441:+++++?
 ABC440:+++++x
 ABC439:+++++x
 ABC438:+++++
@@ -558,8 +559,8 @@ AGC002:+++-
 EDPC:+++++--++++++++++++-++xxxx
 ===========ABCDEF
 JOIsem2015: +
-JOIsnd2020:+
-JOIsem2020:+
+JOIsnd2020:++
+JOIsem2020:++
 JOIsnd2021:+++
 JOIsem2021:++
 JOIsnd2022:+++
