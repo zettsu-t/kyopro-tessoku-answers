@@ -564,12 +564,14 @@ AGC002:+++-
 EDPC:+++++--++++++++++++-++xxxx
 ===========ABCDEF
 JOIsem2015: +
+JOIsnd2019:+++
+JOIsem2019:++
 JOIsnd2020:++
 JOIsem2020:++
 JOIsnd2021:+++
 JOIsem2021:++
 JOIsnd2022:+++
-JOIsem2022:+
+JOIsem2022:++
 JOIsnd2023:+++
 JOIsem2023:++
 JOIsnd2024:++x/
