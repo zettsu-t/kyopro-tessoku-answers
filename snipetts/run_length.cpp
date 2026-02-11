@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 
 namespace {
-    using Num = int;
+    using Num = long long int;
 }
 
 template <typename T>
@@ -47,6 +47,26 @@ struct RunLength {
     }
 };
 
+std::vector<std::pair<Num,Num>> rle_func(const std::vector<Num>& vs) {
+    Num prev = std::numeric_limits<Num>::min();
+    Num len {0};
+    std::vector<std::pair<Num,Num>> runs;
+
+    for(const auto& v : vs) {
+        if (prev != v){
+            if (len > 0) {
+                runs.emplace_back(prev, len);
+            }
+            prev = v;
+            len = 0;
+        }
+        ++len;
+    }
+
+    runs.emplace_back(prev, len);
+    return runs;
+}
+
 class TestAll : public ::testing::Test {};
 
 TEST_F(TestAll, Empty) {
@@ -63,6 +83,11 @@ TEST_F(TestAll, Same) {
     const Rle::Runs expected {{0,5,3}};
     ASSERT_EQ(expected.size(), actual.size());
     ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
+
+    const auto actual_rle = rle_func(input);
+    const std::vector<std::pair<Num,Num>> expected_rle {{3,5}};
+    ASSERT_EQ(expected_rle.size(), actual_rle.size());
+    ASSERT_TRUE(std::equal(actual_rle.begin(), actual_rle.end(), expected_rle.begin()));
 }
 
 TEST_F(TestAll, Each) {
@@ -73,6 +98,11 @@ TEST_F(TestAll, Each) {
     const Rle::Runs expected {{0,1,2}, {1,1,4}, {2,1,8}};
     ASSERT_EQ(expected.size(), actual.size());
     ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
+
+    const auto actual_rle = rle_func(input);
+    const std::vector<std::pair<Num,Num>> expected_rle {{2,1},{4,1},{8,1}};
+    ASSERT_EQ(expected_rle.size(), actual_rle.size());
+    ASSERT_TRUE(std::equal(actual_rle.begin(), actual_rle.end(), expected_rle.begin()));
 }
 
 TEST_F(TestAll, Groups1) {
@@ -83,6 +113,11 @@ TEST_F(TestAll, Groups1) {
     const Rle::Runs expected {{0,2,40}, {2,3,20}, {5,1,30}};
     ASSERT_EQ(expected.size(), actual.size());
     ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
+
+    const auto actual_rle = rle_func(input);
+    const std::vector<std::pair<Num,Num>> expected_rle {{40,2},{20,3},{30,1}};
+    ASSERT_EQ(expected_rle.size(), actual_rle.size());
+    ASSERT_TRUE(std::equal(actual_rle.begin(), actual_rle.end(), expected_rle.begin()));
 }
 
 TEST_F(TestAll, Groups2) {
