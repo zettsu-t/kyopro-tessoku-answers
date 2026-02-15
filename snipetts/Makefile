@@ -8,30 +8,54 @@ GTEST_OBJ=$(patsubst %.cc, %.o, $(notdir $(GTEST_SOURCE)))
 
 SOURCES=$(wildcard ./*.cpp)
 TARGETS=$(notdir $(basename $(SOURCES)))
+TARGETS_DEBUG=$(patsubst %,%-debug,$(TARGETS))
+TARGETS_RELEASE=$(patsubst %,%-release,$(TARGETS))
+TARGETS_ALL=$(TARGETS) $(TARGETS_DEBUG) $(TARGETS_RELEASE) $(GTEST_OBJ)
 
-CXX=g++
-LD=g++
-CPPFLAGS=-std=gnu++20 -Wall -Wextra -I . -O0 -g $(GTEST_GMOCK_INCLUDE)
+CXX=g++-14
+LD=$(CXX)
+CPPFLAGS_COMMON=-std=gnu++23 -Wall -Wextra -Wconversion -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wno-unused-parameter -Wbool-operation -Wshadow -fno-omit-frame-pointer -DNDEBUG -D_GLIBCXX_ASSERTIONS $(GTEST_GMOCK_INCLUDE)
+CPPFLAGS_DEBUG=$(CPPFLAGS_COMMON) -O0 -g -isystem .
+CPPFLAGS_RELEASE=$(CPPFLAGS_COMMON) -O2 -isystem .
 LIBPATH=
 LDFLAGS=
-LIBS=-pthread
+LIBS=
+CXX_VERSION:=$(shell $(CXX) -dumpversion | cut -d. -f1)
 
-.PHONY: all clean run show
+.PHONY: all debug release precompile clean show
 .SUFFIXES: .cpp
 
-all: $(TARGETS)
+all: debug release
+debug: $(TARGETS_DEBUG)
+release: $(TARGETS_RELEASE)
 
-$(TARGETS) : % : %.cpp $(GTEST_OBJ)
-	$(LD) $(LIBPATH) $(CPPFLAGS) -o $@ $< $(GTEST_OBJ) $(LDFLAGS) $(LIBS)
+# Compile foo.cpp to foo-debug for all .cpps
+$(TARGETS_DEBUG) : %-debug : %.cpp $(GTEST_OBJ)
+	$(LD) $(LIBPATH) $(CPPFLAGS_DEBUG) -o $@ $< $(GTEST_OBJ) $(LDFLAGS) $(LIBS)
+	@echo "Ready"
+
+# Compile foo.cpp to foo-release for all .cpps
+$(TARGETS_RELEASE) : %-release : %.cpp $(GTEST_OBJ)
+	$(LD) $(LIBPATH) $(CPPFLAGS_RELEASE) -o $@ $< $(GTEST_OBJ) $(LDFLAGS) $(LIBS)
+	@echo "Ready"
+
+## Make stdc++.h.gch
+precompile: Makefile
+	$(CXX) $(CPPFLAGS_DEBUG) /usr/include/x86_64-linux-gnu/c++/$(CXX_VERSION)/bits/stdc++.h
 
 $(GTEST_OBJ): $(GTEST_SOURCE)
-	$(CXX) $(CPPFLAGS) -o $@ -c $<
+	$(CXX) $(CPPFLAGS_RELEASE) -o $@ -c $<
 
-run: $(TARGETS)
-	for f in $^ ; do echo ./$$f && ./$$f ; done
+test: $(TARGETS_DEBUG)
+	for f in $^ ; do echo ./$$f && timeout 10 ./$$f ; done
 
+test-release: $(TARGETS_RELEASE)
+	for f in $^ ; do echo ./$$f && timeout 10 ./$$f ; done
+
+## Leave stdc++.h.gch
 clean:
-	rm -f $(TARGETS)
+	rm -f $(TARGETS_ALL)
 
+# Show all variables
 show:
 	$(foreach v, $(.VARIABLES), $(info $(v) = $($(v))))
