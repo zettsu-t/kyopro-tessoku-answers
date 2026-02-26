@@ -1,17 +1,30 @@
 #include <bits/stdc++.h>
 
-// #define EXTRA_LIBS 1
-#ifdef EXTRA_LIBS
+// #define USE_ACL 1
+// #define USE_BIG_NUMBER 1
+
+#ifdef USE_ACL
 #include <atcoder/all>
+#endif
+
+#ifdef USE_BIG_NUMBER
 #include <boost/multiprecision/cpp_int.hpp>
+#include <boost/rational.hpp>
 #endif
 
 namespace {
-#ifdef EXTRA_LIBS
+#ifdef USE_ACL
     using ModInt [[maybe_unused]] = atcoder::modint998244353;
-    using BigInt = boost::multiprecision::cpp_int;
-    using BigIntVec = std::vector<BigInt>;
 #endif
+
+#ifdef USE_BIG_NUMBER
+    using BigInt = __int128;
+//  using BigInt = boost::multiprecision::cpp_int;
+    using Rational = boost::rational<BigInt>;
+    using BigIntVec = std::vector<BigInt>;
+    using BigFloat [[maybe_unused]] = std::float128_t;
+#endif
+
     using Num [[maybe_unused]] = long long int;
     using Vec [[maybe_unused]] = std::vector<Num>;
     using Set [[maybe_unused]] = std::set<Num>;
@@ -24,8 +37,12 @@ namespace {
     template<typename T>
     using PQ [[maybe_unused]] = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 
-    const std::vector<std::pair<Num, Num>> dyxs {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-    std::map<char, std::pair<Num, Num>> directions {{'D', {1, 0}}, {'U', {-1, 0}}, {'R', {0, 1}}, {'L', {0, -1}}};
+    const std::vector<std::pair<Num, Num>> dyxs {
+        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+    };
+    std::map<char, std::pair<Num, Num>> directions {
+        {'D', {1, 0}}, {'U', {-1, 0}}, {'R', {0, 1}}, {'L', {0, -1}}
+    };
 
     template<typename T>
     void print_oneline(const std::vector<T>& vec, std::ostream& os) {
@@ -45,6 +62,20 @@ namespace {
 }
 
 void solve(std::istream& is, std::ostream& os) {
+#ifdef USE_ACL
+    atcoder::dsu tree(1024);
+#endif
+
+#ifdef USE_BIG_NUMBER
+    Num a_raw;
+    is >> a_raw;
+    const BigInt a = a_raw;
+    Rational r {6};
+    r /= a;
+    os << static_cast<Num>(r.numerator()) << "/" << static_cast<Num>(r.denominator()) << "*\n";
+    return;
+#endif
+
     Num n {0};
     std::string s;
     is >> n >> s;
