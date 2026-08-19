@@ -369,7 +369,7 @@ CodeQueen2025:+++++xxx
 AISing 2019:  -
 Procon 2019:   +
 =======ABCDEF
-ARC227:++
+ARC227:+++
 ARC226:++
 ARC225:++?-
 ARC224:+++++
