@@ -2,6 +2,8 @@
 
 「競技プログラミングの鉄則 ～アルゴリズムと思考力を高める 77 の技術～」(米田優峻 著, 2022/9, マイナビ出版)の問題に順に解答していきます。著者のサイトは[こちら](https://github.com/E869120/kyopro-tessoku)です。
 
+コンテストの [参加記](results/README.md) も書きました。
+
 ## 概要
 
 - [自動採点システム](https://atcoder.jp/contests/tessoku-book)にACした解答から載せます。
