@@ -2,6 +2,7 @@
 
 // #define USE_ACL 1
 // #define USE_BIG_NUMBER 1
+// #define PBDS 1
 
 #ifdef USE_ACL
 #include <atcoder/all>
@@ -10,6 +11,11 @@
 #ifdef USE_BIG_NUMBER
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/rational.hpp>
+#endif
+
+#ifdef PBDS
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
 #endif
 
 namespace {
@@ -61,6 +67,16 @@ namespace {
     }
 }
 
+#ifdef PBDS
+using namespace __gnu_pbds;
+using TreeElement = std::pair<Num,Num>;
+using ordered_multiset = tree<
+    TreeElement,
+    null_type, std::less_equal<TreeElement>,
+    rb_tree_tag,
+    tree_order_statistics_node_update>;
+#endif
+
 void solve(std::istream& is, std::ostream& os) {
 #ifdef USE_ACL
     atcoder::dsu tree(1024);
@@ -74,6 +90,20 @@ void solve(std::istream& is, std::ostream& os) {
     r /= a;
     os << static_cast<Num>(r.numerator()) << "/" << static_cast<Num>(r.denominator()) << "*\n";
     return;
+#endif
+
+#ifdef PBDS
+    ordered_multiset mset;
+    mset.insert(TreeElement{10,2});
+    mset.insert(TreeElement{10,1});
+    mset.insert(TreeElement{11,0});
+    mset.insert(TreeElement{11,0});
+    mset.insert(TreeElement{12,3});
+    const TreeElement key0 {11,0};
+    os << mset.order_of_key(key0) << "**\n";
+    const TreeElement key1 {12,-1};
+    os << mset.order_of_key(key1) << "**\n";
+    os << mset.find_by_order(1)->first << "**\n";
 #endif
 
     Num n {0};
