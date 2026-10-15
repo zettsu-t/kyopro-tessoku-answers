@@ -9,20 +9,17 @@
 #include <atcoder/segtree>
 #include <gtest/gtest.h>
 
+
+// Caution: this LCA library uses 1-based indexing
 namespace {
     using Num = long long int;
-    constexpr Num INF = std::numeric_limits<Num>::max();
+    constexpr Num INF = std::numeric_limits<Num>::max() / 2;
+    using DsuNode [[maybe_unused]] = int;
 
-    struct Edge {
+    struct LcaEdge {
         Num from {0};
         Num to {0};
         Num weight {0};
-    };
-
-    struct Node {
-        Num id {0};
-        Num sequence {0};
-        Num depth {0};
     };
 
     struct LcaNode {
@@ -51,7 +48,7 @@ namespace {
         return node;
     }
 
-    using Edges = std::unordered_map<Num, std::vector<Edge>>;
+    using LcaEdges = std::unordered_map<Num, std::vector<LcaEdge>>;
     using Path = std::vector<Num>;
     using SegmentTreeLcaNode = atcoder::segtree<LcaNode, apply_lca_node, unit_lca_node>;
     using SegmentTreeLcaEdge = atcoder::segtree<Num, apply_lca_edge, unit_lca_edge>;
@@ -60,7 +57,7 @@ namespace {
     using EdgeDirection = std::unordered_map<Num, std::unordered_map<Num, Num>>;
 
     struct LcaSet {
-        const Edges& edges;
+        const LcaEdges& edges;
         Num min_node_id {0};
         Num max_node_id {0};
         NodeToLcaIndex node_to_lca_index;
@@ -71,7 +68,7 @@ namespace {
         Num sequence_node {0};
         Num sequence_edge {0};
 
-        LcaSet(const Edges& in_edges, Num n) : edges(in_edges) {
+        LcaSet(const LcaEdges& in_edges, Num n) : edges(in_edges) {
             std::set<Num> node_ids;
             for(const auto& [k, v] : in_edges) {
                 node_ids.insert(k);
@@ -96,7 +93,7 @@ namespace {
     };
 }
 
-void eular_tour(Num current, Num prev, const Edges& edges, Path& path) {
+void eular_tour(Num current, Num prev, const LcaEdges& edges, Path& path) {
     path.push_back(current);
 
     auto it = edges.find(current);
@@ -137,17 +134,23 @@ void LcaSet::visit_dfs(Num current, Num depth) {
 
         ++sequence_node;
         const LcaNode next_node{next, sequence_node, next_depth};
-        segtree_lca_nodes->set(sequence_node, next_node);
+        segtree_lca_nodes->set(static_cast<DsuNode>(sequence_node), next_node);
 
         ++sequence_edge;
-        segtree_lca_edges->set(sequence_edge, edge.weight);
+        segtree_lca_edges->set(
+            static_cast<DsuNode>(sequence_edge),
+            edge.weight);
         visit_dfs(next, next_depth);
 
         ++sequence_node;
         const LcaNode current_node{current, sequence_node, depth};
-        segtree_lca_nodes->set(sequence_node, current_node);
+        segtree_lca_nodes->set(
+            static_cast<DsuNode>(sequence_node),
+            current_node);
         ++sequence_edge;
-        segtree_lca_edges->set(sequence_edge, -edge.weight);
+        segtree_lca_edges->set(
+            static_cast<DsuNode>(sequence_edge),
+            -edge.weight);
     }
 
     return;
@@ -156,7 +159,7 @@ void LcaSet::visit_dfs(Num current, Num depth) {
 Num LcaSet::find_lca(Num root, Num depth) {
     ++sequence_node;
     const LcaNode root_node{root, sequence_node, 1};
-    segtree_lca_nodes->set(sequence_node, root_node);
+    segtree_lca_nodes->set(static_cast<DsuNode>(sequence_node), root_node);
 
     visit_dfs(root, depth);
 
@@ -166,7 +169,9 @@ Num LcaSet::find_lca(Num root, Num depth) {
     typename EdgeDirection::mapped_type zero_direction;
 
     for(Num i{2}; i<=lca_size; ++i) {
-        Num current = segtree_lca_nodes->prod(i, i+1).id;
+        Num current = segtree_lca_nodes->prod(
+            static_cast<DsuNode>(i),
+            static_cast<DsuNode>(i+1)).id;
         if (edge_indexes.find(prev) == edge_indexes.end()) {
             edge_indexes[prev] = zero_index;
         }
@@ -198,20 +203,32 @@ Num LcaSet::find_lca(void) {
 Num LcaSet::calc_distance(Num x, Num y) {
     auto u = node_to_lca_index.at(x).value();
     auto v = node_to_lca_index.at(y).value();
-    const auto lca = (u <= v) ? segtree_lca_nodes->prod(u, v+1) :
-        segtree_lca_nodes->prod(v, u+1);
+    const auto lca = (u <= v) ? segtree_lca_nodes->prod(
+        static_cast<DsuNode>(u),
+        static_cast<DsuNode>(v+1)) :
+        segtree_lca_nodes->prod(
+            static_cast<DsuNode>(v),
+            static_cast<DsuNode>(u+1));
 
     const auto lca_index = node_to_lca_index.at(lca.id).value();
     Num dist{0};
     if (x == y) {
         dist = 0;
     } else if (lca.id == x) {
-        dist = segtree_lca_edges->prod(lca_index, v);
+        dist = segtree_lca_edges->prod(
+            static_cast<DsuNode>(lca_index),
+            static_cast<DsuNode>(v));
     } else if (lca.id == y) {
-        dist = segtree_lca_edges->prod(lca_index, u);
+        dist = segtree_lca_edges->prod(
+            static_cast<DsuNode>(lca_index),
+            static_cast<DsuNode>(u));
     } else {
-        dist = segtree_lca_edges->prod(lca_index, v);
-        dist += segtree_lca_edges->prod(lca_index, u);
+        dist = segtree_lca_edges->prod(
+            static_cast<DsuNode>(lca_index),
+            static_cast<DsuNode>(v));
+        dist += segtree_lca_edges->prod(
+            static_cast<DsuNode>(lca_index),
+            static_cast<DsuNode>(u));
     }
     return dist;
 }
@@ -219,7 +236,7 @@ Num LcaSet::calc_distance(Num x, Num y) {
 class TestAll : public ::testing::Test {};
 
 TEST_F(TestAll, All) {
-    const std::vector<Edge> test_case {
+    const std::vector<LcaEdge> test_case {
         {1,2,300}, {2,4,30}, {2,5,40}, {5,8,5}, {5,9,6},
         {1,3,400}, {3,6,50}, {3,7,60}
     };
@@ -245,7 +262,7 @@ TEST_F(TestAll, All) {
         {11,1,3,1}, {12,3,6,1}, {13,6,3,-1}, {14,3,7,1}, {15,7,3,-1}, {16,3,1,-1}
     };
 
-    Edges edges;
+    LcaEdges edges;
     for(const auto& forward : test_case) {
         edges[forward.from].push_back(forward);
         auto rev = forward;
@@ -263,7 +280,9 @@ TEST_F(TestAll, All) {
     ASSERT_LE(n_nodes + 1, lca_set.node_to_lca_index.size());
 
     for(size_t i{1}; i<=n_lca_nodes; ++i) {
-        const auto actual = lca_set.segtree_lca_nodes->prod(i,i+1);
+        const auto actual = lca_set.segtree_lca_nodes->prod(
+            static_cast<DsuNode>(i),
+            static_cast<DsuNode>(i+1));
         const auto expected = expected_lcas.at(i-1);
         ASSERT_EQ(i, actual.sequence);
         ASSERT_EQ(expected.id, actual.id);
@@ -353,7 +372,9 @@ TEST_F(TestAll, All) {
         if (left > right) {
             std::swap(left, right);
         }
-        const auto actual = lca_set.segtree_lca_nodes->prod(left, right+1).id;
+        const auto actual = lca_set.segtree_lca_nodes->prod(
+            static_cast<DsuNode>(left),
+            static_cast<DsuNode>(right+1)).id;
         ASSERT_EQ(q.lca, actual);
     }
 
@@ -369,12 +390,12 @@ TEST_F(TestAll, All) {
 }
 
 TEST_F(TestAll, Root) {
-    const std::vector<Edge> test_case {{3,2,100}, {2,1,30}, {2,4,40}, {3,5,200}};
+    const std::vector<LcaEdge> test_case {{3,2,100}, {2,1,30}, {2,4,40}, {3,5,200}};
     const auto n_edges = test_case.size();
     const auto n_nodes = n_edges + 1;
     const auto n_lca_nodes = n_edges * 2 + 1;
 
-    Edges edges;
+    LcaEdges edges;
     for(const auto& forward : test_case) {
         edges[forward.from].push_back(forward);
         auto rev = forward;
@@ -390,7 +411,9 @@ TEST_F(TestAll, Root) {
 
     ASSERT_EQ(n_lca_nodes, expected_lcas.size());
     for(size_t i{1}; i<=n_lca_nodes; ++i) {
-        const auto actual = lca_set.segtree_lca_nodes->prod(i,i+1);
+        const auto actual = lca_set.segtree_lca_nodes->prod(
+            static_cast<DsuNode>(i),
+            static_cast<DsuNode>(i+1));
         const auto expected = expected_lcas.at(i-1);
         ASSERT_EQ(i, actual.sequence);
         ASSERT_EQ(expected.id, actual.id);
