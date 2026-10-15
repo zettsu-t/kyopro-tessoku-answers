@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 // A subsequence not necessarily contiguous
 #include <string>
 #include <vector>

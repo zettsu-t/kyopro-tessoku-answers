@@ -1,5 +1,7 @@
 // I have already published the library (pre-written) code
 // included in this submission. See:
+// https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/results/ABC-lessons-learned.md
+// https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/contests/all-libraries.cpp
 // https://github.com/zettsu-t/kyopro-tessoku-answers/tree/main/snippets/
 
 #include <bits/stdc++.h>
@@ -25,6 +27,7 @@
 namespace {
 #ifdef USE_ACL
     using ModInt [[maybe_unused]] = atcoder::modint998244353;
+    using ModInt1000000007 = atcoder::modint1000000007;
 #endif
 
 #ifdef USE_BIG_NUMBER
@@ -36,10 +39,16 @@ namespace {
 #endif
 
     using Num [[maybe_unused]] = long long int;
+    using Numeric = double;
     using Vec [[maybe_unused]] = std::vector<Num>;
     using Set [[maybe_unused]] = std::set<Num>;
     using Mset [[maybe_unused]] = std::multiset<Num>;
     using Edges [[maybe_unused]] = std::vector<std::vector<Num>>;
+    using EdgePair [[maybe_unused]] = std::vector<std::pair<Num,Num>>;
+    using Path [[maybe_unused]] = std::vector<Num>;
+    using DsuNode [[maybe_unused]] = int;
+    using SegtreeNode [[maybe_unused]] = int;
+    constexpr Num Inf = std::numeric_limits<Num>::max() / 2;
 
     template<typename T>
     using Q [[maybe_unused]] = std::queue<T>;
@@ -53,21 +62,22 @@ namespace {
     std::map<char, std::pair<Num, Num>> directions {
         {'U', {-1, 0}}, {'R', {0, 1}}, {'D', {1, 0}}, {'L', {0, -1}}
     };
+    const std::vector<std::pair<Num, Num>> signs {{1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+}
 
-    template<typename T>
-    void print_oneline(const std::vector<T>& vec, std::ostream& os) {
-        const auto size = vec.size();
-        for(size_t i{0}; i<size; ++i) {
-            os << vec.at(i) << (((i+1) == size) ? '\n' : ' ');
-        }
+template<typename T>
+void print_oneline(const std::vector<T>& vec, std::ostream& os) {
+    const auto size = vec.size();
+    for(size_t i{0}; i<size; ++i) {
+        os << vec.at(i) << (((i+1) == size) ? '\n' : ' ');
     }
+}
 
-    template<typename T>
-    void print_each(const std::vector<T>& vec, std::ostream& os) {
-        const auto size = vec.size();
-        for(size_t i{0}; i<size; ++i) {
-            os << vec.at(i) << '\n';
-        }
+template<typename T>
+void print_each(const std::vector<T>& vec, std::ostream& os) {
+    const auto size = vec.size();
+    for(size_t i{0}; i<size; ++i) {
+        os << vec.at(i) << '\n';
     }
 }
 

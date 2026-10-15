@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <boost/multiprecision/cpp_int.hpp>
 #include <boost/rational.hpp>
 #include <gtest/gtest.h>

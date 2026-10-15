@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 // NxNマスのN列
 #include <algorithm>
 #include <numeric>

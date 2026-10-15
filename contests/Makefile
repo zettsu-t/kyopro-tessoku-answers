@@ -6,7 +6,7 @@ TARGETS_ALL=$(TARGETS) $(TARGETS_DEBUG) $(TARGETS_RELEASE)
 
 CXX=g++-14
 LD=$(CXX)
-CPPFLAGS_COMMON=-std=gnu++20 -Wall -Wextra -Wconversion -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wno-unused-parameter -Wbool-operation -Wshadow -fno-omit-frame-pointer -DNDEBUG -D_GLIBCXX_ASSERTIONS
+CPPFLAGS_COMMON=-std=gnu++23 -Wall -Wextra -Wconversion -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wconversion -Wfloat-equal -Wpointer-arith -Wno-unused-parameter -Wbool-operation -Wshadow -fno-omit-frame-pointer -DNDEBUG -D_GLIBCXX_ASSERTIONS
 CPPFLAGS_DEBUG=$(CPPFLAGS_COMMON) -O0 -g -isystem .
 CPPFLAGS_RELEASE=$(CPPFLAGS_COMMON) -O2 -isystem .
 LIBPATH=

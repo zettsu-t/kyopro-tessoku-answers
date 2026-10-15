@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <limits>
 #include <queue>

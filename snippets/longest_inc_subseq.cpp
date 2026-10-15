@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 // アルゴリズムは蟻本の65ページ目を参照
 
 #include <algorithm>

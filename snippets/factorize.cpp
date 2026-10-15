@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <iostream>
 #include <map>
@@ -114,16 +116,16 @@ TEST_F(TestAll, FactorizePrimes) {
         ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
 
         for(Num i{1}; i<=5; ++i) {
-            Factors expected {1};
+            Factors expected_local {1};
             Num n {1};
             for(Num j{0}; j<i; ++j) {
                 n *= p;
-                expected.push_back(n);
+                expected_local.push_back(n);
             }
 
-            const auto actual = factorize(n);
-            ASSERT_EQ(expected.size(), actual.size());
-            ASSERT_TRUE(std::equal(actual.begin(), actual.end(), expected.begin()));
+            const auto actual_local = factorize(n);
+            ASSERT_EQ(expected_local.size(), actual_local.size());
+            ASSERT_TRUE(std::equal(actual_local.begin(), actual_local.end(), expected_local.begin()));
         }
     }
 }

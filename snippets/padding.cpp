@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>

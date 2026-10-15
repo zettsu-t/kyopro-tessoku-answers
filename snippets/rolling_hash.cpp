@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 // 0-based indexing and [L,R) ranges
 #include <string>
 #include <vector>

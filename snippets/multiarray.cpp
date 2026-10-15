@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <memory>
 #include <boost/multi_array.hpp>
 #include <gtest/gtest.h>

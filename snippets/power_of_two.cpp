@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <vector>
 #include <atcoder/modint.hpp>
 #include <gtest/gtest.h>

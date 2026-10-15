@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <bits/stdc++.h>
 #include <atcoder/dsu>
 #include <atcoder/modint>
@@ -20,7 +22,7 @@ using Edges [[maybe_unused]] = std::vector<std::vector<Num>>;
 using EdgePair [[maybe_unused]] = std::vector<std::pair<Num,Num>>;
 }
 
-Edges to_matrix(const EdgePair& in_edges) {
+Edges to_adjacent_matrix(const EdgePair& in_edges) {
     Num n {0};
     for(const auto& [u, v] : in_edges) {
         n = std::max(n, u);
@@ -97,7 +99,7 @@ class TestToMatrix : public ::testing::Test {};
 
 TEST_F(TestToMatrix, All) {
     const EdgePair in_edges {{0, 2}, {2, 2}, {2, 3}};
-    const auto actual = to_matrix(in_edges);
+    const auto actual = to_adjacent_matrix(in_edges);
     const Edges expected {{2}, {}, {0,2,3}, {2}};
 
     ASSERT_EQ(expected.size(), actual.size());
@@ -111,53 +113,53 @@ class TestEdges : public ::testing::Test {};
 TEST_F(TestEdges, Empty) {
     const EdgePair edges;
     ASSERT_TRUE(check_bipartite_graph(edges, 0));
-    ASSERT_TRUE(check_bipartite_graph(to_matrix(edges)));
+    ASSERT_TRUE(check_bipartite_graph(to_adjacent_matrix(edges)));
 }
 
 TEST_F(TestEdges, One) {
     const EdgePair edges;
     ASSERT_TRUE(check_bipartite_graph(edges, 1));
-    ASSERT_TRUE(check_bipartite_graph(to_matrix(edges)));
+    ASSERT_TRUE(check_bipartite_graph(to_adjacent_matrix(edges)));
 }
 
 TEST_F(TestEdges, Self) {
     const EdgePair edges {{0, 0}};
     ASSERT_FALSE(check_bipartite_graph(edges, 1));
-    ASSERT_FALSE(check_bipartite_graph(to_matrix(edges)));
+    ASSERT_FALSE(check_bipartite_graph(to_adjacent_matrix(edges)));
 }
 
 TEST_F(TestEdges, Two) {
     const EdgePair edges {{0, 1}};
     ASSERT_TRUE(check_bipartite_graph(edges, 2));
-    ASSERT_TRUE(check_bipartite_graph(to_matrix(edges)));
+    ASSERT_TRUE(check_bipartite_graph(to_adjacent_matrix(edges)));
 }
 
 TEST_F(TestEdges, Three) {
     const EdgePair edges1 {{0, 1}, {1, 2}};
     ASSERT_TRUE(check_bipartite_graph(edges1, 3));
-    ASSERT_TRUE(check_bipartite_graph(to_matrix(edges1)));
+    ASSERT_TRUE(check_bipartite_graph(to_adjacent_matrix(edges1)));
 
     const EdgePair edges2 {{0, 1}, {1, 2}, {2, 0}};
     ASSERT_FALSE(check_bipartite_graph(edges2, 3));
-    ASSERT_FALSE(check_bipartite_graph(to_matrix(edges2)));
+    ASSERT_FALSE(check_bipartite_graph(to_adjacent_matrix(edges2)));
 }
 
 TEST_F(TestEdges, Four) {
     const EdgePair edges1 {{0, 1}, {0, 3}, {2, 1}, {2, 3}};
     ASSERT_TRUE(check_bipartite_graph(edges1, 4));
-    ASSERT_TRUE(check_bipartite_graph(to_matrix(edges1)));
+    ASSERT_TRUE(check_bipartite_graph(to_adjacent_matrix(edges1)));
 
     const EdgePair edges2 {{0, 1}, {0, 2}, {0, 3}, {1, 2}};
     ASSERT_FALSE(check_bipartite_graph(edges2, 4));
-    ASSERT_FALSE(check_bipartite_graph(to_matrix(edges2)));
+    ASSERT_FALSE(check_bipartite_graph(to_adjacent_matrix(edges2)));
 
     const EdgePair edges3 {{0, 1}, {2, 3}};
     ASSERT_TRUE(check_bipartite_graph(edges3, 4));
-    ASSERT_TRUE(check_bipartite_graph(to_matrix(edges3)));
+    ASSERT_TRUE(check_bipartite_graph(to_adjacent_matrix(edges3)));
 
     const EdgePair edges4 {{0, 1}, {2, 3}, {3, 3}};
     ASSERT_FALSE(check_bipartite_graph(edges4, 4));
-    ASSERT_FALSE(check_bipartite_graph(to_matrix(edges4)));
+    ASSERT_FALSE(check_bipartite_graph(to_adjacent_matrix(edges4)));
 }
 
 int main(int argc, char* argv[]) {

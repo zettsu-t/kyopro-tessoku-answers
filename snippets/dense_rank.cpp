@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 #include <algorithm>
 #include <limits>
 #include <map>
@@ -63,9 +65,9 @@ TEST_F(TestAll, Groups1) {
 }
 
 TEST_F(TestAll, Groups2) {
-    std::vector<Num> input {0,30,30,30,10,20,20,40,40};
+    std::vector<Num> input {0,30,30,30,10,20,20,50,50};
     const auto actual = dense_rank(input);
-    const std::map<Num,Num> expected {{0,0}, {20,1}, {30,2}, {40,3}, {50,4}};
+    const std::map<Num,Num> expected {{0,0}, {10,1}, {20,2}, {30,3}, {50,4}};
     ASSERT_EQ(expected, actual);
 }
 

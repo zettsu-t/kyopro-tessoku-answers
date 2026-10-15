@@ -1,3 +1,5 @@
+// SPDX-FileCopyrightText: 2026 Zettsu Tatsuya
+// SPDX-License-Identifier: MIT
 // https://codeforces.com/blog/entry/11080?locale=en
 #include <algorithm>
 #include <map>
