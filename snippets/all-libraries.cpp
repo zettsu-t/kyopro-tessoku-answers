@@ -2,8 +2,6 @@
 // SPDX-License-Identifier: MIT
 // See also:
 // https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/results/ABC-lessons-learned.md
-// https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/snippets/find_rational.cpp
-// https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/snippets/lca.cpp
 // https://github.com/zettsu-t/kyopro-tessoku-answers/tree/main/snippets/
 
 // -------------------------------------------------------------------
