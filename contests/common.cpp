@@ -1,7 +1,7 @@
 // I have already published the library (pre-written) code
 // included in this submission. See:
 // https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/results/ABC-lessons-learned.md
-// https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/contests/all-libraries.cpp
+// https://github.com/zettsu-t/kyopro-tessoku-answers/blob/main/snippets/all-libraries.cpp
 // https://github.com/zettsu-t/kyopro-tessoku-answers/tree/main/snippets/
 
 #include <bits/stdc++.h>
