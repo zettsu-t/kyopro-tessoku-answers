@@ -1,3 +1,7 @@
+// I have already published the library (pre-written) code
+// included in this submission. See:
+// https://github.com/zettsu-t/kyopro-tessoku-answers/tree/main/snippets/
+
 #include <bits/stdc++.h>
 
 // #define USE_ACL 1
@@ -44,10 +48,10 @@ namespace {
     using PQ [[maybe_unused]] = std::priority_queue<T, std::vector<T>, std::greater<T>>;
 
     const std::vector<std::pair<Num, Num>> dyxs {
-        {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+        {-1, 0}, {0, 1}, {1, 0}, {0, -1}
     };
     std::map<char, std::pair<Num, Num>> directions {
-        {'D', {1, 0}}, {'U', {-1, 0}}, {'R', {0, 1}}, {'L', {0, -1}}
+        {'U', {-1, 0}}, {'R', {0, 1}}, {'D', {1, 0}}, {'L', {0, -1}}
     };
 
     template<typename T>
