@@ -1,4 +1,4 @@
-# AtCoder Beginner Contest lessons learned (最新まで)
+# AtCoder Beginner Contest lessons learned (ABC 480まで)
 
 コンテストに参加した教訓をまとめていきます。
 
@@ -1299,7 +1299,7 @@ $y$ の桁数を $W=1..19$ に決め打ちする。そうすると $concat(x,y) 
 
 式変形を間違えたのでコンテスト中に間に合わなかった。しかし入力例だけは通ってしまった。
 
-## ABC 461-最新
+## ABC 461-470
 
 ### ABC 461-A
 
@@ -1833,6 +1833,8 @@ ARCの前日に水色に戻った。
 コードは[こちら](https://atcoder.jp/contests/abc470/submissions/78241618)
 
 コンテスト中はわからず、解説ACした。偶数回では達成できないパターンがあるので半分にする場合があることを入力例2は示しているが、その条件が分からなかった。
+
+## ABC 471-480
 
 ### ABC 471-A
 
