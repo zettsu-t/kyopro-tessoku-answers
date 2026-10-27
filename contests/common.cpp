@@ -16,6 +16,7 @@
 
 #ifdef USE_BIG_NUMBER
 #include <boost/multiprecision/cpp_int.hpp>
+#include <boost/multiprecision/cpp_dec_float.hpp>
 #include <boost/rational.hpp>
 #endif
 
@@ -36,6 +37,8 @@ namespace {
     using Rational = boost::rational<BigInt>;
     using BigIntVec = std::vector<BigInt>;
     using BigFloat [[maybe_unused]] = std::float128_t;
+    // https://boostjp.github.io/tips/multiprec-float.html
+//  using BigFloat = boost::multiprecision::number<boost::multiprecision::cpp_dec_float<50>>;
 #endif
 
     using Num [[maybe_unused]] = long long int;
@@ -91,7 +94,7 @@ using ordered_multiset = tree<
     tree_order_statistics_node_update>;
 #endif
 
-void solve(std::istream& is, std::ostream& os) {
+void library_sample(std::istream& is, std::ostream& os) {
 #ifdef USE_ACL
     atcoder::dsu tree(1024);
 #endif
@@ -114,12 +117,21 @@ void solve(std::istream& is, std::ostream& os) {
     mset.insert(TreeElement{11,0});
     mset.insert(TreeElement{12,3});
     const TreeElement key0 {11,0};
-    os << mset.order_of_key(key0) << "**\n";
+    os << mset.order_of_key(key0) << "*1\n";
     const TreeElement key1 {12,-1};
-    os << mset.order_of_key(key1) << "**\n";
-    os << mset.find_by_order(1)->first << "**\n";
+    os << mset.order_of_key(key1) << "*2\n";
+    os << mset.find_by_order(1)->first << mset.find_by_order(1)->second << "*3\n";
+    // Cannot use mset.erase(TreeElement{}) directly
+    for(Num i{0}; i<3; ++i) {
+        mset.erase(mset.find_by_order(mset.order_of_key(TreeElement{10,2})));
+        os << mset.find_by_order(1)->first << mset.find_by_order(1)->second << "**\n";
+    }
+    // Consider binary search on a Fenwick tree.
+    // std::ranges::partition_point(std::views::iota(0, n), aBIT.sum(0, x) < rank)
 #endif
+}
 
+void solve(std::istream& is, std::ostream& os) {
     Num n {0};
     std::string s;
     is >> n >> s;
