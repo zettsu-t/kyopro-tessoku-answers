@@ -120,3 +120,76 @@ $C$ を根とする木を考える。色が同じ二頂点 $U,V$ までの距離
 ある部分木について、深さ $S$ 、色 $C$ の頂点数が $T_{S,C}$ 個あったとする。その部分木以外について、深さ $D-S$ 、色 $C$ の頂点数が $T_{D-S,C}$ 個あったとする。これらの組み合わせ $T_{S,C} \times T_{D-S,C}$ を答えに加える。
 
 最後に答えを半分にしたものを出力する。 [再実装](https://atcoder.jp/contests/abc482/submissions/80543083)したが、実装に時間が掛かりすぎる。
+
+### ABC 483-A
+
+今回もA,B,C,D問題の早解きで生き延びた。C問題で1ペナはもったいない。
+
+コードは[こちら](https://atcoder.jp/contests/abc483/submissions/80648650)
+
+答えは $\lceil N/2 \rceil$ である。
+
+### ABC 483-B
+
+コードは[こちら](https://atcoder.jp/contests/abc483/submissions/80654060)
+
+問題文通りシミュレーションする。 `std::ranges::reverse` を使うと実装しやすい。
+
+### ABC 483-C
+
+コードは[こちら](https://atcoder.jp/contests/abc483/submissions/80666441)
+
+問題文をシミュレーションする。データ構造を以下の通り定める。
+
+- 各投票者の投票 $V_i$ 。要素は $V_i[0]$ を第一希望、 $V_i[1]$ を第二希望とする配列である。
+- 各候補者を第一希望とする投票者 $A_i$ 。要素は投票者の番号。この配列の長さを誤って $M$ にしてREが返る。もったいないペナルティである。
+- 各候補者の、第一希望としての得票 $C_i$
+
+これを順序付き集合 $S$ `std::set<std::pair<Num,Num>>` に載せて順位をつける。要素は $(C_i,-i)$ である、こうすると $S$ に `rbegin()->second` は、最多得票かつ番号が最小の候補者なので、答えが求まる。
+
+候補者 $i = 1..N$ について、以下の通りいなかったことにする。
+
+- $S$ から $i = (C_i,-i)$ を除く
+- $a \in A_i$ の投票者について、第二候補を加える。 $S$ の $(V_i[1], D)$ を $(V_i[1], D+1)$ に置き換える。置き換える前の要素がなければ、要素は純増である。
+- $S$ の最大要素を求めて、 $i$ の答えとして出力する。
+- 第二候補を除く。つまり $S$ の $(V_i[1], D+1)$ を $(V_i[1], D)$ に置き換える。 $D=0$ なら要素は純減である。
+- $S$ から $i = (C_i,-i)$ に加える
+
+### ABC 483-D
+
+コードは[こちら](https://atcoder.jp/contests/abc483/submissions/80674430)
+
+方針はすぐ立ったが、実装に手間取った。
+
+ロボットの移動先を累積する $P_0 = 0$ , $P_i = \sum_{j=0}^i A_i$ とする。区間最大セグメント木 $S$ と区間最小セグメント木 $T$ に、 $P_{0..N}$ を載せる。
+
+高々一回とあるので、 $S[0..N] - T[0..N] + 1$ が答えの最小値である。ここで $A_i$ の符号を反転させる。
+
+$A_i$ を反転させると、 $[0..(i-1)]$ の最大最小値は変わらず、 $[i..N]$ の最大最長値は $-2A_i$ 増える。よって最小値は $B = min(S[0..i-1], S[i..n] - 2A_i)$ に、最大値は $C = max(S[0..i-1], S[i..n] - 2A_i)$ になる。答えの候補は、 $C - B + 1$ であるので、答えを更新する。
+
+### ABC 483-E
+
+コードは[こちら](https://atcoder.jp/contests/abc483/submissions/80701677)
+
+TLEになった。4秒制限なので間に合うと思ったらだめだった。
+
+解き方が全くわからないので公式解説を読んで実装したら `std::map` で 3829 ms 、 `std::unordered_map` で 2298 ms [だった](https://atcoder.jp/contests/abc483/submissions/80701705) 。ハッシュは32 bitで(5x6ビット)で十分である。
+
+ちなみにカスタムハッシュは [このよう](https://cpprefjp.github.io/reference/functional/hash.html) に作る。
+
+```c++
+using Str = std::array<uint8_t, 8>;
+constexpr uint8_t Mark = 0;
+
+struct str_hash {
+    auto operator() (const Str& str) const {
+        size_t result = 0;
+        for(Num i {5}; i>=0; --i) {
+            result = (result << 5) + str.at(i);
+        }
+        return result;
+    }
+};
+
+using Table = std::unordered_map<Str, Num, str_hash, std::equal_to<>>;
+```
