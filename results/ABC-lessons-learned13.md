@@ -264,7 +264,7 @@ using ordered_multiset = tree<
 - $T - S$ を答えに足す。つまり $R$ 以下の要素数から $L$ 未満の要素数を引く。
 - $S$ から $C_i$ を除く。
 
-この方法は公式解説2と同じである。
+この方法は公式解説2と同じである。公式解説1のように座標圧縮してFenwick tree に [載せる](https://atcoder.jp/contests/abc484/submissions/80867286) こともできるが、実装が大変である。
 
 ### ABC 484-F
 
@@ -291,4 +291,6 @@ E問題より先に解いた。見た瞬間、ランダマイズが使えると�
 - $W$ が $false$ かつ、 $S$ が $M$ で割り切れるなら、答えは `Yes` である。
 - それ以外は `No` である。
 
-素直に区間最大最小セグメント木で解けるらしい。乱数は要らなかった。
+$Wild$ を明示しなくても [解ける](https://atcoder.jp/contests/abc484/submissions/80866673) 。乱数を $2 \times 10^{12}$ 以下にしても衝突 [しない](https://atcoder.jp/contests/abc484/submissions/80866733) 。
+
+素直に区間最大最小セグメント木で [解ける](https://atcoder.jp/contests/abc484/submissions/80866999) らしい。乱数は要らなかった。
